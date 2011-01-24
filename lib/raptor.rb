@@ -7,7 +7,9 @@ module Raptor
     end
 
     def ==(comparison)
-      @object == comparison
+      result = @object == comparison
+      puts result
+      result
     end
 
   end

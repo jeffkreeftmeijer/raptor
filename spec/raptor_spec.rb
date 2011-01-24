@@ -1,3 +1,9 @@
+require 'mocha'
+
+class Object
+  include Mocha::API
+end
+
 require File.expand_path('../../lib/raptor', __FILE__)
 
 # descibe Raptor::Should
@@ -13,6 +19,14 @@ require File.expand_path('../../lib/raptor', __FILE__)
     # it compares the object with the comparison
       should = Raptor::Should.new(false)
       puts should.==(false) == true
+
+    # it prints the result
+      mocha_setup
+      should = Raptor::Should.new(true)
+      should.expects(:puts).with(false)
+      should.==(false)
+      mocha_verify
+      mocha_teardown
 
 # describe Object
 
