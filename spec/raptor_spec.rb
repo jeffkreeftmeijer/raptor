@@ -75,3 +75,6 @@ require File.expand_path('../spec_helper', __FILE__)
     # it adds a context to Raptor#contexts
       context = Unstable::Kernel.context('foo')
       Raptor.contexts.last.should == context
+
+  # describe #describe
+      Unstable::Kernel.describe('foo').class.should == Raptor::Context

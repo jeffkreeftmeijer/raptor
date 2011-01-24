@@ -49,4 +49,6 @@ module Kernel
     context
   end
 
+  alias_method :describe, :context
+
 end
