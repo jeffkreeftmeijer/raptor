@@ -13,3 +13,11 @@ module Raptor
   end
 
 end
+
+class Object
+
+  def should
+    Raptor::Should.new(self)
+  end
+
+end
