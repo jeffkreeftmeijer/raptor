@@ -1,10 +1,4 @@
-require 'mocha'
-
-class Object
-  include Mocha::API
-end
-
-require File.expand_path('../../lib/raptor', __FILE__)
+require File.expand_path('../spec_helper', __FILE__)
 
 # descibe Raptor::Should
 
