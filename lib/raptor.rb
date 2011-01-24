@@ -6,6 +6,10 @@ module Raptor
       @object = object
     end
 
+    def ==(comparison)
+      @object == comparison
+    end
+
   end
 
 end
