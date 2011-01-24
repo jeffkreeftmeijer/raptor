@@ -42,6 +42,9 @@ require File.expand_path('../spec_helper', __FILE__)
       context = Unstable::Raptor::Context.new('foo')
       context.instance_variable_get(:@description).should == 'foo'
 
+    # it stores the block
+      context = Unstable::Raptor::Context.new('foo') { 'baz' }
+      context.instance_variable_get(:@block).call.should == 'baz'
 
 # describe Object
 

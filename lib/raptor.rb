@@ -20,8 +20,9 @@ module Raptor
 
   class Context
 
-    def initialize(description)
+    def initialize(description, &block)
       @description = description
+      @block = block
     end
 
   end
