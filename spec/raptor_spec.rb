@@ -1,6 +1,19 @@
 require File.expand_path('../spec_helper', __FILE__)
 
-# descibe Raptor::Should
+describe Raptor do
+
+  #descibe .contexts
+
+    #it is an array to store contexts
+      Unstable::Raptor.contexts.class.should == Array
+
+    #it is writable
+      Unstable::Raptor.contexts << :context
+      Unstable::Raptor.contexts.should == [:context]
+
+end
+
+describe Raptor::Should do
 
   # describe #initialize
 
@@ -23,7 +36,29 @@ require File.expand_path('../spec_helper', __FILE__)
       mocha_verify
       mocha_teardown
 
-# describe Object
+end
+
+describe Raptor::Context do
+
+  # descibe #initialize
+
+    # it stores the description
+      context = Unstable::Raptor::Context.new('foo')
+      context.instance_variable_get(:@description).should == 'foo'
+
+    # it stores the block
+      context = Unstable::Raptor::Context.new('foo') { 'baz' }
+      context.instance_variable_get(:@block).call.should == 'baz'
+
+  # describe #run
+
+    # it runs the block
+      context = Unstable::Raptor::Context.new('foo') { 'baz' }
+      context.run.should == 'baz'
+
+end
+
+describe Object do
 
   # describe #should
 
@@ -32,3 +67,26 @@ require File.expand_path('../spec_helper', __FILE__)
       should = object.should
       should.class.should == Raptor::Should
       should.instance_variable_get(:@object).should == object
+
+end
+
+describe Kernel do
+
+  #describe #context
+
+    # it returns an instance of Raptor::Context
+      context = Unstable::Kernel.context('foo') { 'bar' }
+      context.class.should == Raptor::Context
+      context.instance_variable_get(:@description).should == 'foo'
+      context.instance_variable_get(:@block).call.should == 'bar'
+      Raptor.contexts.pop # clean up the created context
+
+    # it adds a context to Raptor#contexts
+      context = Unstable::Kernel.context('foo')
+      Raptor.contexts.pop.should == context
+
+  # describe #describe
+      Unstable::Kernel.describe('foo').class.should == Raptor::Context
+      Raptor.contexts.pop # clean up the created context
+
+end

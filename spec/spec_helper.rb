@@ -16,6 +16,7 @@ end
 module Unstable
   Raptor = ::Raptor.clone
   Object = ::Object.clone
+  Kernel = ::Kernel.clone
 end
 
 Unstable::Raptor.clone_constants_from Raptor

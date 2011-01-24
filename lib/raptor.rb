@@ -1,5 +1,9 @@
 module Raptor
 
+  def self.contexts
+    @contexts ||= []
+  end
+
   class Should
 
     def initialize(object)
@@ -14,6 +18,19 @@ module Raptor
 
   end
 
+  class Context
+
+    def initialize(description, &block)
+      @description = description
+      @block = block
+    end
+
+    def run
+      @block.call
+    end
+
+  end
+
 end
 
 class Object
@@ -21,5 +38,17 @@ class Object
   def should
     Raptor::Should.new(self)
   end
+
+end
+
+module Kernel
+
+  def context(description, &block)
+    context = Raptor::Context.new(description, &block)
+    Raptor.contexts << context
+    context
+  end
+
+  alias_method :describe, :context
 
 end
