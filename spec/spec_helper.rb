@@ -19,3 +19,5 @@ module Unstable
 end
 
 Unstable::Raptor.clone_constants_from Raptor
+
+require 'raptor'
