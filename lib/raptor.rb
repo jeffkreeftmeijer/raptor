@@ -43,8 +43,8 @@ end
 
 module Kernel
 
-  def context(description)
-    context = Raptor::Context.new(description)
+  def context(description, &block)
+    context = Raptor::Context.new(description, &block)
     Raptor.contexts << context
     context
   end
