@@ -1,6 +1,6 @@
 require File.expand_path('../spec_helper', __FILE__)
 
-# descibe Raptor
+describe Raptor do
 
   #descibe .contexts
 
@@ -11,7 +11,9 @@ require File.expand_path('../spec_helper', __FILE__)
       Unstable::Raptor.contexts << :context
       Unstable::Raptor.contexts.should == [:context]
 
-# descibe Raptor::Should
+end
+
+describe Raptor::Should do
 
   # describe #initialize
 
@@ -34,7 +36,9 @@ require File.expand_path('../spec_helper', __FILE__)
       mocha_verify
       mocha_teardown
 
-# descibe Raptor::Context
+end
+
+describe Raptor::Context do
 
   # descibe #initialize
 
@@ -52,7 +56,9 @@ require File.expand_path('../spec_helper', __FILE__)
       context = Unstable::Raptor::Context.new('foo') { 'baz' }
       context.run.should == 'baz'
 
-# describe Object
+end
+
+describe Object do
 
   # describe #should
 
@@ -62,7 +68,9 @@ require File.expand_path('../spec_helper', __FILE__)
       should.class.should == Raptor::Should
       should.instance_variable_get(:@object).should == object
 
-# describe Kernel
+end
+
+describe Kernel do
 
   #describe #context
 
@@ -71,10 +79,14 @@ require File.expand_path('../spec_helper', __FILE__)
       context.class.should == Raptor::Context
       context.instance_variable_get(:@description).should == 'foo'
       context.instance_variable_get(:@block).call.should == 'bar'
+      Raptor.contexts.pop # clean up the created context
 
     # it adds a context to Raptor#contexts
       context = Unstable::Kernel.context('foo')
-      Raptor.contexts.last.should == context
+      Raptor.contexts.pop.should == context
 
   # describe #describe
       Unstable::Kernel.describe('foo').class.should == Raptor::Context
+      Raptor.contexts.pop # clean up the created context
+
+end
