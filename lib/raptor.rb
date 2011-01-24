@@ -1,5 +1,9 @@
 module Raptor
 
+  def self.contexts
+    @contexts ||= []
+  end
+
   class Should
 
     def initialize(object)

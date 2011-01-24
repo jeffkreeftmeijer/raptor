@@ -1,5 +1,16 @@
 require File.expand_path('../spec_helper', __FILE__)
 
+# descibe Raptor
+
+  #descibe .contexts
+
+    #it is an array to store contexts
+      Unstable::Raptor.contexts.class.should == Array
+
+    #it is writable
+      Unstable::Raptor.contexts << :context
+      Unstable::Raptor.contexts.should == [:context]
+
 # descibe Raptor::Should
 
   # describe #initialize
