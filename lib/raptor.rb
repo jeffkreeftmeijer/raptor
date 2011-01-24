@@ -1,3 +1,11 @@
 module Raptor
-  # Your code goes here...
+
+  class Should
+
+    def initialize(object)
+      @object = object
+    end
+
+  end
+
 end
