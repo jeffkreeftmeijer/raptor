@@ -31,3 +31,11 @@ class Object
   end
 
 end
+
+module Kernel
+
+  def context(description)
+    Raptor::Context.new(description)
+  end
+
+end

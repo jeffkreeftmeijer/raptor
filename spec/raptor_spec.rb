@@ -41,3 +41,10 @@ require File.expand_path('../spec_helper', __FILE__)
       should = object.should
       should.class.should == Raptor::Should
       should.instance_variable_get(:@object).should == object
+
+# describe Kernel
+
+  #describe #context
+
+    # it returns an instance of Raptor::Context
+      Unstable::Kernel.context('foo').class.should == Raptor::Context
