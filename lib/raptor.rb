@@ -39,7 +39,9 @@ end
 module Kernel
 
   def context(description)
-    Raptor::Context.new(description)
+    context = Raptor::Context.new(description)
+    Raptor.contexts << context
+    context
   end
 
 end
