@@ -18,7 +18,8 @@ require File.expand_path('../../lib/raptor', __FILE__)
 
     # it compares the object with the comparison
       should = Raptor::Should.new(false)
-      puts should.==(false) == true
+      should.stubs(:puts)
+      puts should.==(true) == false
 
     # it prints the result
       mocha_setup
