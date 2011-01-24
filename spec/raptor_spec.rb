@@ -12,14 +12,14 @@ require File.expand_path('../../lib/raptor', __FILE__)
 
     # it stores the object
       should = Raptor::Should.new(true)
-      puts should.instance_variable_get(:@object) == true
+      should.instance_variable_get(:@object).should == true
 
   # describe #==
 
     # it compares the object with the comparison
       should = Raptor::Should.new(false)
       should.stubs(:puts)
-      puts should.==(true) == false
+      should.==(true).should == false
 
     # it prints the result
       mocha_setup
@@ -36,5 +36,5 @@ require File.expand_path('../../lib/raptor', __FILE__)
     # it returns an instance of Raptor::Should
       object = Object.new
       should = object.should
-      puts should.class == Raptor::Should
-      puts should.instance_variable_get(:@object) == object
+      should.class.should == Raptor::Should
+      should.instance_variable_get(:@object).should == object
