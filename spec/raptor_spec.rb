@@ -23,6 +23,15 @@ require File.expand_path('../spec_helper', __FILE__)
       mocha_verify
       mocha_teardown
 
+# descibe Raptor::Context
+
+  # descibe #initialize
+
+    # it stores the description
+      context = Unstable::Raptor::Context.new('foo')
+      context.instance_variable_get(:@description).should == 'foo'
+
+
 # describe Object
 
   # describe #should

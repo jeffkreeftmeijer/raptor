@@ -14,6 +14,14 @@ module Raptor
 
   end
 
+  class Context
+
+    def initialize(description)
+      @description = description
+    end
+
+  end
+
 end
 
 class Object
