@@ -1,0 +1,2 @@
+#!/usr/bin/env ruby
+ARGV.each {|file| load file}
