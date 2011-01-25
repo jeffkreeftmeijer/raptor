@@ -33,6 +33,14 @@ module Raptor
       @block.call
     end
 
+    def context(description, &block)
+      context = Raptor::Context.new(description, &block)
+      contexts << context
+      context
+    end
+
+    alias_method :describe, :context
+
   end
 
 end

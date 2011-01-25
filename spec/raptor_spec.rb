@@ -67,6 +67,26 @@ describe Raptor::Context do
       parent_context.contexts << :context
       parent_context.contexts.should == [:context]
 
+  #describe #context
+
+    # it returns an instance of Raptor::Context
+      parent_context = Unstable::Raptor::Context.new('foo')
+      context = parent_context.context('bar') { 'baz' }
+      context.class.should == Raptor::Context
+      context.instance_variable_get(:@description).should == 'bar'
+      context.instance_variable_get(:@block).call.should == 'baz'
+
+    # it adds a context to parent_context#contexts
+      parent_context = Unstable::Raptor::Context.new('foo')
+      context = parent_context.context('foo')
+      parent_context.contexts.pop.should == context
+
+  # describe #describe
+
+    # it is an alias for #context
+      parent_context = Unstable::Raptor::Context.new('foo')
+      parent_context.describe('foo').class.should == Raptor::Context
+
 end
 
 describe Object do
@@ -97,6 +117,8 @@ describe Kernel do
       Raptor.contexts.pop.should == context
 
   # describe #describe
+
+    # it is an alias for #context
       Unstable::Kernel.describe('foo').class.should == Raptor::Context
       Raptor.contexts.pop # clean up the created context
 
