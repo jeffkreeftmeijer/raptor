@@ -2,7 +2,7 @@ require File.expand_path('../spec_helper', __FILE__)
 
 describe Raptor do
 
-  #descibe .contexts
+  describe ".contexts" do
 
     #it is an array to store contexts
       Unstable::Raptor.contexts.class.should == Array
@@ -11,17 +11,21 @@ describe Raptor do
       Unstable::Raptor.contexts << :context
       Unstable::Raptor.contexts.should == [:context]
 
+  end
+
 end
 
 describe Raptor::Should do
 
-  # describe #initialize
+  describe "#initialize" do
 
     # it stores the object
       should = Unstable::Raptor::Should.new(true)
       should.instance_variable_get(:@object).should == true
 
-  # describe #==
+  end
+
+  describe "#==" do
 
     # it compares the object with the comparison
       should = Unstable::Raptor::Should.new(false)
@@ -36,11 +40,13 @@ describe Raptor::Should do
       mocha_verify
       mocha_teardown
 
+  end
+
 end
 
 describe Raptor::Context do
 
-  # descibe #initialize
+  describe "#initialize" do
 
     # it stores the description
       context = Unstable::Raptor::Context.new('foo')
@@ -50,7 +56,9 @@ describe Raptor::Context do
       context = Unstable::Raptor::Context.new('foo') { 'baz' }
       context.instance_variable_get(:@block).call.should == 'baz'
 
-  # describe #run
+  end
+
+  describe "#run" do
 
     # it runs the block
       context = Unstable::Raptor::Context.new('foo') { 'baz' }
@@ -63,7 +71,9 @@ describe Raptor::Context do
       parent_context.run
       called.should == true
 
-  #descibe #contexts
+  end
+
+  describe "#contexts" do
 
     #it is an array to store contexts
       parent_context = Unstable::Raptor::Context.new('foo')
@@ -74,7 +84,9 @@ describe Raptor::Context do
       parent_context.contexts << :context
       parent_context.contexts.should == [:context]
 
-  #describe #context
+  end
+
+  describe "#context" do
 
     # it returns an instance of Raptor::Context
       parent_context = Unstable::Raptor::Context.new('foo')
@@ -88,17 +100,21 @@ describe Raptor::Context do
       context = parent_context.context('foo')
       parent_context.contexts.pop.should == context
 
-  # describe #describe
+  end
+
+  describe "#describe" do
 
     # it is an alias for #context
       parent_context = Unstable::Raptor::Context.new('foo')
       parent_context.describe('foo').class.should == Raptor::Context
 
+  end
+
 end
 
 describe Object do
 
-  # describe #should
+  describe "#should" do
 
     # it returns an instance of Raptor::Should
       object = Unstable::Object.new
@@ -106,11 +122,13 @@ describe Object do
       should.class.should == Raptor::Should
       should.instance_variable_get(:@object).should == object
 
+  end
+
 end
 
 describe Kernel do
 
-  #describe #context
+  describe "#context" do
 
     # it returns an instance of Raptor::Context
       context = Unstable::Kernel.context('foo') { 'bar' }
@@ -123,10 +141,14 @@ describe Kernel do
       context = Unstable::Kernel.context('foo')
       Raptor.contexts.pop.should == context
 
-  # describe #describe
+  end
+
+  describe "#describe" do
 
     # it is an alias for #context
       Unstable::Kernel.describe('foo').class.should == Raptor::Context
       Raptor.contexts.pop # clean up the created context
+
+  end
 
 end
