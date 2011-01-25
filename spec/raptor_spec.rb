@@ -56,6 +56,13 @@ describe Raptor::Context do
       context = Unstable::Raptor::Context.new('foo') { 'baz' }
       context.run.should == 'baz'
 
+    # it runs nested contexts
+      called = false
+      parent_context = Unstable::Raptor::Context.new('foo') {}
+      parent_context.context('bar') { called = true }
+      parent_context.run
+      called.should == true
+
   #descibe #contexts
 
     #it is an array to store contexts

@@ -30,7 +30,9 @@ module Raptor
     end
 
     def run
-      @block.call
+      result = @block.call
+      contexts.each { |context| context.run }
+      result
     end
 
     def context(description, &block)
