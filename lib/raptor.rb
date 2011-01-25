@@ -20,6 +20,10 @@ module Raptor
 
   class Context
 
+    def contexts
+      @contexts ||= []
+    end
+
     def initialize(description, &block)
       @description = description
       @block = block

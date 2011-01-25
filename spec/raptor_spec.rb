@@ -56,6 +56,17 @@ describe Raptor::Context do
       context = Unstable::Raptor::Context.new('foo') { 'baz' }
       context.run.should == 'baz'
 
+  #descibe #contexts
+
+    #it is an array to store contexts
+      parent_context = Unstable::Raptor::Context.new('foo')
+      parent_context.contexts.class.should == Array
+
+    #it is writable
+      parent_context = Unstable::Raptor::Context.new('foo')
+      parent_context.contexts << :context
+      parent_context.contexts.should == [:context]
+
 end
 
 describe Object do
