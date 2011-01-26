@@ -35,6 +35,7 @@ module Raptor
 
     def run
       result = instance_eval(&@block)
+      examples.each { |example| example.run }
       contexts.each { |context| context.run }
       result
     end

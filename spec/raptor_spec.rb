@@ -71,9 +71,16 @@ describe Raptor::Context do
       parent_context.run
       called.should == true
 
-   # it runs in context
-     context = Unstable::Raptor::Context.new('foo') { self }
-     context.run.should == context
+    # it runs nested examples
+      called = false
+      context = Unstable::Raptor::Context.new('foo') {}
+      context.example('bar') { called = true }
+      context.run
+      called.should == true
+
+    # it runs in context
+      context = Unstable::Raptor::Context.new('foo') { self }
+      context.run.should == context
 
   end
 
