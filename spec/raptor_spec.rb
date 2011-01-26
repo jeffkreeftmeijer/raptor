@@ -143,6 +143,14 @@ describe Raptor::Context do
 
   end
 
+  describe "#it" do
+
+    # it is an alias for #example
+      context = Unstable::Raptor::Context.new('foo')
+      context.it('foo').class.should == Raptor::Example
+
+  end
+
 end
 
 describe Raptor::Example do

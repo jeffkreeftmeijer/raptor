@@ -53,6 +53,8 @@ module Raptor
       example
     end
 
+    alias_method :it, :example
+
   end
 
   class Example
