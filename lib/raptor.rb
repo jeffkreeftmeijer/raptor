@@ -24,6 +24,10 @@ module Raptor
       @contexts ||= []
     end
 
+    def examples
+      @examples ||= []
+    end
+
     def initialize(description, &block)
       @description = description
       @block = block
@@ -31,6 +35,7 @@ module Raptor
 
     def run
       result = instance_eval(&@block)
+      examples.each { |example| example.run }
       contexts.each { |context| context.run }
       result
     end
@@ -42,6 +47,27 @@ module Raptor
     end
 
     alias_method :describe, :context
+
+    def example(description, &block)
+      example = Example.new(description, &block)
+      examples << example
+      example
+    end
+
+    alias_method :it, :example
+
+  end
+
+  class Example
+
+    def initialize(description, &block)
+      @description = description
+      @block = block
+    end
+
+    def run
+      @block.call
+    end
 
   end
 
