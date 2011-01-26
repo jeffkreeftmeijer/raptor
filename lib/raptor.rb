@@ -30,7 +30,7 @@ module Raptor
     end
 
     def run
-      result = @block.call
+      result = instance_eval(&@block)
       contexts.each { |context| context.run }
       result
     end
