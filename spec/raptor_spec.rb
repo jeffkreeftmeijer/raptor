@@ -118,8 +118,23 @@ describe Raptor::Context do
 
     # it returns an instance of Raptor::Example
       context = Unstable::Raptor::Context.new('foo')
-      context.example.class.should == Raptor::Example
+      example = context.example('foo') { 'bar' }
+      example.class.should == Raptor::Example
+      example.instance_variable_get(:@description).should == 'foo'
+      example.instance_variable_get(:@block).call.should == 'bar'
 
+end
+
+describe Raptor::Example do
+  # descibe #initialize
+
+    # it stores the description
+      example = Unstable::Raptor::Example.new('foo')
+      example.instance_variable_get(:@description).should == 'foo'
+
+    # it stores the block
+      example = Unstable::Raptor::Example.new('foo') { 'baz' }
+      example.instance_variable_get(:@block).call.should == 'baz'
 end
 
 describe Object do

@@ -35,7 +35,6 @@ module Raptor
       result
     end
 
-
     def context(description, &block)
       context = Raptor::Context.new(description, &block)
       contexts << context
@@ -44,13 +43,18 @@ module Raptor
 
     alias_method :describe, :context
 
-    def example
-      Example.new
+    def example(description, &block)
+      Example.new(description, &block)
     end
 
   end
 
   class Example
+
+    def initialize(description, &block)
+      @description = description
+      @block = block
+    end
 
   end
 
