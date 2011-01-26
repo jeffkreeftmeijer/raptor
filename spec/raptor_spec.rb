@@ -154,6 +154,7 @@ describe Raptor::Context do
 end
 
 describe Raptor::Example do
+
   describe "#initialize" do
 
     # it stores the description
@@ -163,6 +164,14 @@ describe Raptor::Example do
     # it stores the block
       example = Unstable::Raptor::Example.new('foo') { 'baz' }
       example.instance_variable_get(:@block).call.should == 'baz'
+
+  end
+
+  describe "#run" do
+
+    # it runs the block
+      example = Unstable::Raptor::Example.new('foo') { 'baz' }
+      example.run.should == 'baz'
 
   end
 
