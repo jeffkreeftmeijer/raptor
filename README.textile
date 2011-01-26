@@ -12,3 +12,5 @@ E#t  ;#W:   :K#K:   L##, E#t         t#E       G#t    E#t  ;#W:  ,i.
 DWi   ,KK: ;##D.    L##, E#t          fE        t     DWi   ,KK: :G#:
                                                                  iKt
                * RRRRRROOOOOAOAOAAHAAAAAAARRGGGHH! *
+
+Yes, Raptor is yet another Ruby testing library. It's inspired by "Bacon":https://github.com/chneukirchen/bacon and "RSpec":https://github.com/rspec and it's built for fun and educational purposes rather than becoming the next big testing library. Right now it's still unreleased, so I advise you not to use it unless you know what you're doing. Want to help out? "Let me know":https://github.com/inbox/new/jeffkreeftmeijer. :)
