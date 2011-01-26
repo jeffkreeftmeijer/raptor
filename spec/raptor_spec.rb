@@ -114,6 +114,12 @@ describe Raptor::Context do
 
   end
 
+  # describe #example
+
+    # it returns an instance of Raptor::Example
+      context = Unstable::Raptor::Context.new('foo')
+      context.example.class.should == Raptor::Example
+
 end
 
 describe Object do
