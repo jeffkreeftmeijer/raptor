@@ -24,6 +24,10 @@ module Raptor
       @contexts ||= []
     end
 
+    def examples
+      @examples ||= []
+    end
+
     def initialize(description, &block)
       @description = description
       @block = block
@@ -44,7 +48,9 @@ module Raptor
     alias_method :describe, :context
 
     def example(description, &block)
-      Example.new(description, &block)
+      example = Example.new(description, &block)
+      examples << example
+      example
     end
 
   end

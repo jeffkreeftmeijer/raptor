@@ -114,7 +114,20 @@ describe Raptor::Context do
 
   end
 
-  # describe #example
+  describe "#examples" do
+
+    #it is an array to store contexts
+      context = Unstable::Raptor::Context.new('foo')
+      context.examples.class.should == Array
+
+    #it is writable
+      context = Unstable::Raptor::Context.new('foo')
+      context.examples << :context
+      context.examples.should == [:context]
+
+  end
+
+  describe "#example" do
 
     # it returns an instance of Raptor::Example
       context = Unstable::Raptor::Context.new('foo')
@@ -123,10 +136,17 @@ describe Raptor::Context do
       example.instance_variable_get(:@description).should == 'foo'
       example.instance_variable_get(:@block).call.should == 'bar'
 
+    # it adds an example to context.examples
+      context = Unstable::Raptor::Context.new('foo')
+      example = context.example('foo')
+      context.examples.pop.should == example
+
+  end
+
 end
 
 describe Raptor::Example do
-  # descibe #initialize
+  describe "#initialize" do
 
     # it stores the description
       example = Unstable::Raptor::Example.new('foo')
@@ -135,6 +155,9 @@ describe Raptor::Example do
     # it stores the block
       example = Unstable::Raptor::Example.new('foo') { 'baz' }
       example.instance_variable_get(:@block).call.should == 'baz'
+
+  end
+
 end
 
 describe Object do
