@@ -32,14 +32,13 @@ describe Raptor::Should do
 
     it "compares the object with the comparison" do
       should = Unstable::Raptor::Should.new(false)
-      should.stubs(:puts)
-      should.==(true).should == false
+      should.==(false).should == true
     end
 
-    it "prints the result" do
+    it "raises a Raptor::Error when the comparison fails" do
       mocha_setup
       should = Unstable::Raptor::Should.new(true)
-      should.expects(:puts).with(false)
+      should.expects(:raise).with(Raptor::Error, 'Expected false, got true')
       should.==(false)
       mocha_verify
       mocha_teardown
@@ -203,6 +202,25 @@ describe Raptor::Example do
       example = Unstable::Raptor::Example.new('foo') { 'baz' }
       example.run.should == 'baz'
     end
+
+     it "prints a red F and the error message when an error is raised" do
+       mocha_setup
+       example = Unstable::Raptor::Example.new('foo') { raise 'omgno!' }
+       example.expects(:puts).with("\e[31mF\e[0m")
+       example.expects(:puts).with('#<RuntimeError: omgno!>')
+       example.run
+       mocha_verify
+       mocha_teardown
+     end
+
+     it "prints a green dot when no error is raised" do
+       mocha_setup
+       example = Unstable::Raptor::Example.new('foo') {  }
+       example.expects(:puts).with("\e[32m.\e[0m")
+       example.run
+       mocha_verify
+       mocha_teardown
+     end
 
   end
 

@@ -12,7 +12,7 @@ module Raptor
 
     def ==(comparison)
       result = @object == comparison
-      puts result
+      raise(Error, "Expected #{comparison.inspect}, got #{@object.inspect}") unless result
       result
     end
 
@@ -66,9 +66,21 @@ module Raptor
     end
 
     def run
-      @block.call
+      begin
+        result = @block.call
+      rescue Object => e
+        puts "\e[31mF\e[0m"
+        puts e.inspect
+      else
+        puts "\e[32m.\e[0m"
+      ensure
+        return result
+      end
     end
 
+  end
+
+  class Error < StandardError
   end
 
 end
