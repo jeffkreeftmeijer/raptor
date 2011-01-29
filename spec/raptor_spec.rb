@@ -101,6 +101,27 @@ describe Raptor::Context do
       context.run.should == context
     end
 
+    it "increases Raptor.depth while running nested examples" do
+      original_depth, depth = Raptor.depth, 0
+
+      Unstable::Raptor::Context.new('foo') do
+        example('bar') { depth = Raptor.depth }
+      end.run
+
+      depth.should == original_depth + 1
+      Raptor.depth.should == original_depth
+    end
+
+    it "increases Raptor.depth while running nested contexts" do
+      original_depth, depth = Raptor.depth, 0
+
+      Unstable::Raptor::Context.new('foo') do
+        context('bar') { depth = Raptor.depth }
+      end.run
+
+      depth.should == original_depth + 1
+      Raptor.depth.should == original_depth
+    end
   end
 
   describe "#contexts" do

@@ -44,8 +44,10 @@ module Raptor
 
     def run
       result = instance_eval(&@block)
+      Raptor.depth += 1
       examples.each { |example| example.run }
       contexts.each { |context| context.run }
+      Raptor.depth -= 1
       result
     end
 
