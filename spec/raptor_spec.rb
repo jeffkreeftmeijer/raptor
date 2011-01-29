@@ -15,6 +15,15 @@ describe Raptor do
 
   end
 
+  describe ".depth" do
+
+    it "returns the current depth" do
+      Unstable::Raptor.depth.should == 0
+      Unstable::Raptor.instance_variable_set(:@depth, 1)
+      Unstable::Raptor.depth.should == 1
+    end
+  end
+
 end
 
 describe Raptor::Should do

@@ -1,7 +1,16 @@
 module Raptor
 
-  def self.contexts
-    @contexts ||= []
+  class << self
+    attr_writer :depth
+
+    def contexts
+      @contexts ||= []
+    end
+
+    def depth
+      @depth ||= 0
+    end
+
   end
 
   class Should
