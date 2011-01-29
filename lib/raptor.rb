@@ -43,6 +43,7 @@ module Raptor
     end
 
     def run
+      puts "#{'  ' * Raptor.depth}#{@description}"
       result = instance_eval(&@block)
       Raptor.depth += 1
       examples.each { |example| example.run }

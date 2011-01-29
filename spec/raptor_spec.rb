@@ -77,13 +77,16 @@ describe Raptor::Context do
 
     it "runs the block" do
       context = Unstable::Raptor::Context.new('foo') { 'baz' }
+      context.stubs(:puts)
       context.run.should == 'baz'
     end
 
     it "runs nested contexts" do
       called = false
       parent_context = Unstable::Raptor::Context.new('foo') {}
-      parent_context.context('bar') { called = true }
+      context = parent_context.context('bar') { called = true }
+      parent_context.stubs(:puts)
+      context.stubs(:puts)
       parent_context.run
       called.should == true
     end
@@ -92,21 +95,26 @@ describe Raptor::Context do
       called = false
       context = Unstable::Raptor::Context.new('foo') {}
       context.example('bar') { called = true }
+      context.stubs(:puts)
       context.run
       called.should == true
     end
 
     it "runs in context" do
       context = Unstable::Raptor::Context.new('foo') { self }
+      context.stubs(:puts)
       context.run.should == context
     end
 
     it "increases Raptor.depth while running nested examples" do
       original_depth, depth = Raptor.depth, 0
 
-      Unstable::Raptor::Context.new('foo') do
+      context = Unstable::Raptor::Context.new('foo') do
         example('bar') { depth = Raptor.depth }
-      end.run
+      end
+
+      context.stubs(:puts)
+      context.run
 
       depth.should == original_depth + 1
       Raptor.depth.should == original_depth
@@ -115,13 +123,26 @@ describe Raptor::Context do
     it "increases Raptor.depth while running nested contexts" do
       original_depth, depth = Raptor.depth, 0
 
-      Unstable::Raptor::Context.new('foo') do
-        context('bar') { depth = Raptor.depth }
-      end.run
+      parent_context = Unstable::Raptor::Context.new('foo') {}
+      context = parent_context.context('bar') { depth = Raptor.depth }
+
+      parent_context.stubs(:puts)
+      context.stubs(:puts)
+      parent_context.run
 
       depth.should == original_depth + 1
       Raptor.depth.should == original_depth
     end
+  end
+
+  it "puts descriptions, indented based on current depth" do
+    mocha_setup
+    context = Unstable::Raptor::Context.new('foo') {}
+    context.expects(:puts).with('    foo')
+    Raptor.stubs(:depth).returns(2)
+    context.run
+    mocha_verify
+    mocha_teardown
   end
 
   describe "#contexts" do
