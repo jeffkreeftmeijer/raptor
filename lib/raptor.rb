@@ -81,10 +81,10 @@ module Raptor
       begin
         result = @block.call
       rescue Object => e
-        puts "\e[31mF\e[0m"
+        puts "\e[31m#{'  ' * Raptor.depth}#{@description}\e[0m"
         puts e.inspect
       else
-        puts "\e[32m.\e[0m"
+        puts "\e[32m#{'  ' * Raptor.depth}#{@description}\e[0m"
       ensure
         return result
       end

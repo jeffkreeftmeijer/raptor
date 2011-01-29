@@ -94,8 +94,9 @@ describe Raptor::Context do
     it "runs nested examples" do
       called = false
       context = Unstable::Raptor::Context.new('foo') {}
-      context.example('bar') { called = true }
+      example = context.example('bar') { called = true }
       context.stubs(:puts)
+      example.stubs(:puts)
       context.run
       called.should == true
     end
@@ -109,11 +110,11 @@ describe Raptor::Context do
     it "increases Raptor.depth while running nested examples" do
       original_depth, depth = Raptor.depth, 0
 
-      context = Unstable::Raptor::Context.new('foo') do
-        example('bar') { depth = Raptor.depth }
-      end
+      context = Unstable::Raptor::Context.new('foo') {}
+      example = context.example('bar') { depth = Raptor.depth }
 
       context.stubs(:puts)
+      example.stubs(:puts)
       context.run
 
       depth.should == original_depth + 1
@@ -251,23 +252,26 @@ describe Raptor::Example do
 
     it "runs the block" do
       example = Unstable::Raptor::Example.new('foo') { 'baz' }
+      example.stubs(:puts)
       example.run.should == 'baz'
     end
 
-     it "prints a red F and the error message when an error is raised" do
+     it "prints the description in red when an error is raised" do
        mocha_setup
        example = Unstable::Raptor::Example.new('foo') { raise 'omgno!' }
-       example.expects(:puts).with("\e[31mF\e[0m")
+       example.expects(:puts).with("\e[31mfoo\e[0m")
        example.expects(:puts).with('#<RuntimeError: omgno!>')
+       Raptor.stubs(:depth).returns(0)
        example.run
        mocha_verify
        mocha_teardown
      end
 
-     it "prints a green dot when no error is raised" do
+     it "prints the description in green when no error is raised" do
        mocha_setup
        example = Unstable::Raptor::Example.new('foo') {  }
-       example.expects(:puts).with("\e[32m.\e[0m")
+       example.expects(:puts).with("\e[32mfoo\e[0m")
+       Raptor.stubs(:depth).returns(0)
        example.run
        mocha_verify
        mocha_teardown
