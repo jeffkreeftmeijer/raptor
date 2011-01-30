@@ -11,6 +11,13 @@ class Object
       victim.const_get(constant).clone_constants_from(const_get(constant))
     end
   end
+
+  def with_mocha
+    mocha_setup
+    yield
+    mocha_verify
+    mocha_teardown
+  end
 end
 
 module Unstable

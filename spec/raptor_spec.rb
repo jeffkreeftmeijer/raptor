@@ -22,6 +22,7 @@ describe Raptor do
       Unstable::Raptor.instance_variable_set(:@depth, 1)
       Unstable::Raptor.depth.should == 1
     end
+
   end
 
 end
@@ -45,12 +46,11 @@ describe Raptor::Should do
     end
 
     it "raises a Raptor::Error when the comparison fails" do
-      mocha_setup
-      should = Unstable::Raptor::Should.new(true)
-      should.expects(:raise).with(Raptor::Error, 'Expected false, got true')
-      should.==(false)
-      mocha_verify
-      mocha_teardown
+      with_mocha do
+        should = Unstable::Raptor::Should.new(true)
+        should.expects(:raise).with(Raptor::Error, 'Expected false, got true')
+        should.==(false)
+      end
     end
 
   end
@@ -110,9 +110,9 @@ describe Raptor::Context do
     it "increases Raptor.depth while running nested examples" do
       original_depth, depth = Raptor.depth, 0
 
+
       context = Unstable::Raptor::Context.new('foo') {}
       example = context.example('bar') { depth = Raptor.depth }
-
       context.stubs(:puts)
       example.stubs(:puts)
       context.run
@@ -137,13 +137,12 @@ describe Raptor::Context do
   end
 
   it "puts descriptions, indented based on current depth" do
-    mocha_setup
-    context = Unstable::Raptor::Context.new('foo') {}
-    context.expects(:puts).with('    foo')
-    Raptor.stubs(:depth).returns(2)
-    context.run
-    mocha_verify
-    mocha_teardown
+    with_mocha do
+      context = Unstable::Raptor::Context.new('foo') {}
+      context.expects(:puts).with('    foo')
+      Raptor.stubs(:depth).returns(2)
+      context.run
+    end
   end
 
   describe "#contexts" do
@@ -256,26 +255,24 @@ describe Raptor::Example do
       example.run.should == 'baz'
     end
 
-     it "prints the description in red when an error is raised" do
-       mocha_setup
-       example = Unstable::Raptor::Example.new('foo') { raise 'omgno!' }
-       example.expects(:puts).with("\e[31mfoo\e[0m")
-       example.expects(:puts).with('#<RuntimeError: omgno!>')
-       Raptor.stubs(:depth).returns(0)
-       example.run
-       mocha_verify
-       mocha_teardown
-     end
+    it "prints the description in red when an error is raised" do
+      with_mocha do
+        example = Unstable::Raptor::Example.new('foo') { raise 'omgno!' }
+        example.expects(:puts).with("\e[31mfoo\e[0m")
+        example.expects(:puts).with('#<RuntimeError: omgno!>')
+        Raptor.stubs(:depth).returns(0)
+        example.run
+      end
+    end
 
-     it "prints the description in green when no error is raised" do
-       mocha_setup
-       example = Unstable::Raptor::Example.new('foo') {  }
-       example.expects(:puts).with("\e[32mfoo\e[0m")
-       Raptor.stubs(:depth).returns(0)
-       example.run
-       mocha_verify
-       mocha_teardown
-     end
+    it "prints the description in green when no error is raised" do
+      with_mocha do
+        example = Unstable::Raptor::Example.new('foo') {  }
+        example.expects(:puts).with("\e[32mfoo\e[0m")
+        Raptor.stubs(:depth).returns(0)
+        example.run
+      end
+    end
 
   end
 
