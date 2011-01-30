@@ -134,6 +134,7 @@ describe Raptor::Context do
       depth.should == original_depth + 1
       Raptor.depth.should == original_depth
     end
+
   end
 
   it "puts descriptions, indented based on current depth" do
@@ -272,6 +273,12 @@ describe Raptor::Example do
         Raptor.stubs(:depth).returns(0)
         example.run
       end
+    end
+
+    it "runs in context" do
+      example = Unstable::Raptor::Example.new('foo') { self }
+      example.stubs(:puts)
+      example.run.should == example
     end
 
   end

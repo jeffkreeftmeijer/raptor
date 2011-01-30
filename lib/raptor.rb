@@ -79,7 +79,7 @@ module Raptor
 
     def run
       begin
-        result = @block.call
+        result = instance_eval(&@block)
       rescue Object => e
         puts "\e[31m#{'  ' * Raptor.depth}#{@description}\e[0m"
         puts e.inspect
