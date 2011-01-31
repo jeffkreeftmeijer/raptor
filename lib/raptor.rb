@@ -92,6 +92,23 @@ module Raptor
 
   end
 
+  class Formatter
+
+    def self.context_started(description)
+      puts "#{'  ' * Raptor.depth}#{description}"
+    end
+
+    def self.example_passed(description)
+      puts "#{'  ' * Raptor.depth}\e[32m#{description}\e[0m"
+    end
+
+    def self.example_failed(description, exception)
+      puts "#{'  ' * Raptor.depth}\e[31m#{description}\e[0m"
+      puts exception.inspect
+    end
+
+  end
+
   class Error < StandardError
   end
 

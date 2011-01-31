@@ -285,6 +285,46 @@ describe Raptor::Example do
 
 end
 
+describe Raptor::Formatter do
+
+  describe "#context_started" do
+
+    it "prints the description, indented based on current depth" do
+      with_mocha do
+        Raptor::Formatter.expects(:puts).with('    foo')
+        Raptor.stubs(:depth).returns(2)
+        Raptor::Formatter.context_started('foo')
+      end
+    end
+
+  end
+
+  describe "#example_passed" do
+
+    it "prints the description in green, indented based on current depth" do
+      with_mocha do
+        Raptor::Formatter.expects(:puts).with("    \e[32mfoo\e[0m")
+        Raptor.stubs(:depth).returns(2)
+        Raptor::Formatter.example_passed('foo')
+      end
+    end
+
+  end
+
+  describe "#example_failed" do
+
+    it "prints the indented description in red and the exception" do
+      with_mocha do
+        Raptor::Formatter.expects(:puts).with("    \e[31mfoo\e[0m")
+        Raptor::Formatter.expects(:puts).with('#<Raptor::Error: foo>')
+        Raptor.stubs(:depth).returns(2)
+        Raptor::Formatter.example_failed('foo', Raptor::Error.new('foo'))
+      end
+    end
+
+  end
+end
+
 describe Object do
 
   describe "#should" do
