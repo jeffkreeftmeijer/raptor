@@ -11,6 +11,9 @@ module Raptor
       @depth ||= 0
     end
 
+    def run
+      contexts.each { |context| context.run }
+    end
   end
 
   class Should

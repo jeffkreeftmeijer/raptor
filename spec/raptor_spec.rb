@@ -25,6 +25,21 @@ describe Raptor do
 
   end
 
+  describe ".run" do
+
+    it "runs the examples" do
+      with_mocha do
+        Unstable::Raptor.instance_variable_set(
+          :@contexts,
+          [Unstable::Raptor::Context.new('foo')] * 3
+        )
+        Unstable::Raptor.contexts.each { |context| context.expects(:run) }
+        Unstable::Raptor.run
+      end
+    end
+
+  end
+
 end
 
 describe Raptor::Should do
