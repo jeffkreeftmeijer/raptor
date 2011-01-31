@@ -43,7 +43,7 @@ module Raptor
     end
 
     def run
-      puts "#{'  ' * Raptor.depth}#{@description}"
+      Raptor::Formatter.context_started(@description)
       result = instance_eval(&@block)
       Raptor.depth += 1
       examples.each { |example| example.run }
@@ -80,11 +80,10 @@ module Raptor
     def run
       begin
         result = instance_eval(&@block)
-      rescue Object => e
-        puts "\e[31m#{'  ' * Raptor.depth}#{@description}\e[0m"
-        puts e.inspect
+      rescue Object => exception
+        Raptor::Formatter.example_failed(@description, exception)
       else
-        puts "\e[32m#{'  ' * Raptor.depth}#{@description}\e[0m"
+        Raptor::Formatter.example_passed(@description)
       ensure
         return result
       end
