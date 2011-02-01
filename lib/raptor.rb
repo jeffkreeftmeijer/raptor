@@ -2,6 +2,7 @@ module Raptor
 
   class << self
     attr_writer :depth
+    attr_accessor :formatter
   end
 
   def self.contexts
@@ -46,7 +47,7 @@ module Raptor
     end
 
     def run
-      Raptor::Formatter.context_started(@description)
+      Raptor.formatter.context_started(@description)
       result = instance_eval(&@block)
       Raptor.depth += 1
       examples.each { |example| example.run }
@@ -84,9 +85,9 @@ module Raptor
       begin
         result = instance_eval(&@block)
       rescue Object => exception
-        Raptor::Formatter.example_failed(@description, exception)
+        Raptor.formatter.example_failed(@description, exception)
       else
-        Raptor::Formatter.example_passed(@description)
+        Raptor.formatter.example_passed(@description)
       ensure
         return result
       end
@@ -94,25 +95,31 @@ module Raptor
 
   end
 
-  class Formatter
+  module Formatters
 
-    def self.context_started(description)
-      puts "#{'  ' * Raptor.depth}#{description}"
-    end
+    class Documentation
 
-    def self.example_passed(description)
-      puts "#{'  ' * Raptor.depth}\e[32m#{description}\e[0m"
-    end
+      def self.context_started(description)
+        puts "#{'  ' * Raptor.depth}#{description}"
+      end
 
-    def self.example_failed(description, exception)
-      puts "#{'  ' * Raptor.depth}\e[31m#{description}\e[0m"
-      puts exception.inspect
+      def self.example_passed(description)
+        puts "#{'  ' * Raptor.depth}\e[32m#{description}\e[0m"
+      end
+
+      def self.example_failed(description, exception)
+        puts "#{'  ' * Raptor.depth}\e[31m#{description}\e[0m"
+        puts exception.inspect
+      end
+
     end
 
   end
 
   class Error < StandardError
   end
+
+  @formatter = Formatters::Documentation
 
 end
 

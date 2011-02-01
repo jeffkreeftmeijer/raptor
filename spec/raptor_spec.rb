@@ -25,6 +25,13 @@ describe Raptor do
 
   end
 
+  describe ".formatter" do
+
+    it "returns Raptor::Formatters::Documentation by default" do
+      Unstable::Raptor.formatter.to_s.should == 'Raptor::Formatters::Documentation'
+    end
+  end
+
   describe ".run" do
 
     it "runs the examples" do
@@ -93,7 +100,7 @@ describe Raptor::Context do
     it "runs the block" do
       with_mocha do
         context = Unstable::Raptor::Context.new('foo') { 'baz' }
-        Raptor::Formatter.stubs(:context_started)
+        Raptor.formatter.stubs(:context_started)
         context.run.should == 'baz'
       end
     end
@@ -103,7 +110,7 @@ describe Raptor::Context do
         called = false
         parent_context = Unstable::Raptor::Context.new('foo') {}
         context = parent_context.context('bar') { called = true }
-        Raptor::Formatter.stubs(:context_started)
+        Raptor.formatter.stubs(:context_started)
         parent_context.run
         called.should == true
       end
@@ -114,8 +121,8 @@ describe Raptor::Context do
         called = false
         context = Unstable::Raptor::Context.new('foo') {}
         example = context.example('bar') { called = true }
-        Raptor::Formatter.stubs(:context_started)
-        Raptor::Formatter.stubs(:example_passed)
+        Raptor.formatter.stubs(:context_started)
+        Raptor.formatter.stubs(:example_passed)
         context.run
         called.should == true
       end
@@ -123,7 +130,7 @@ describe Raptor::Context do
 
     it "runs in context" do
       context = Unstable::Raptor::Context.new('foo') { self }
-      Raptor::Formatter.stubs(:context_started)
+      Raptor.formatter.stubs(:context_started)
       context.run.should == context
     end
 
@@ -134,8 +141,8 @@ describe Raptor::Context do
         context = Unstable::Raptor::Context.new('foo') {}
         example = context.example('bar') { depth = Raptor.depth }
 
-        Raptor::Formatter.stubs(:context_started)
-        Raptor::Formatter.stubs(:example_passed)
+        Raptor.formatter.stubs(:context_started)
+        Raptor.formatter.stubs(:example_passed)
         context.run
 
         depth.should == original_depth + 1
@@ -150,8 +157,8 @@ describe Raptor::Context do
         parent_context = Unstable::Raptor::Context.new('foo') {}
         context = parent_context.context('bar') { depth = Raptor.depth }
 
-        Raptor::Formatter.stubs(:context_started)
-        Raptor::Formatter.stubs(:example_passed) 
+        Raptor.formatter.stubs(:context_started)
+        Raptor.formatter.stubs(:example_passed) 
         parent_context.run
 
         depth.should == original_depth + 1
@@ -161,9 +168,9 @@ describe Raptor::Context do
 
   end
 
-  it "calls Raptor::Formatter#context_started" do
+  it "calls Raptor.formatter#context_started" do
     with_mocha do
-      Raptor::Formatter.expects(:context_started).with('foo')
+      Raptor.formatter.expects(:context_started).with('foo')
       Unstable::Raptor::Context.new('foo') {}.run
     end
   end
@@ -274,28 +281,28 @@ describe Raptor::Example do
 
     it "runs the block" do
       example = Unstable::Raptor::Example.new('foo') { 'baz' }
-      Raptor::Formatter.stubs(:example_passed)
+      Raptor.formatter.stubs(:example_passed)
       example.run.should == 'baz'
     end
 
-    it "calls Raptor::Formatter.example_failed when an error is raised" do
+    it "calls Raptor.formatter.example_failed when an error is raised" do
       with_mocha do
         error = RuntimeError.new('omgno!')
-        Raptor::Formatter.expects(:example_failed).with('foo', error)
+        Raptor.formatter.expects(:example_failed).with('foo', error)
         Unstable::Raptor::Example.new('foo') { raise error }.run
       end
     end
 
-    it "calls Raptor::Formatter.example_passed when no error is raised" do
+    it "calls Raptor.formatter.example_passed when no error is raised" do
       with_mocha do
-        Raptor::Formatter.expects(:example_passed).with('foo')
+        Raptor.formatter.expects(:example_passed).with('foo')
         Unstable::Raptor::Example.new('foo') { }.run
       end
     end
 
     it "runs in context" do
       example = Unstable::Raptor::Example.new('foo') { self }
-      Raptor::Formatter.stubs(:example_passed)
+      Raptor.formatter.stubs(:example_passed)
       example.run.should == example
     end
 
@@ -303,15 +310,15 @@ describe Raptor::Example do
 
 end
 
-describe Raptor::Formatter do
+describe Raptor::Formatters::Documentation do
 
   describe "#context_started" do
 
     it "prints the description, indented based on current depth" do
       with_mocha do
-        Raptor::Formatter.expects(:puts).with('    foo')
+        Raptor.formatter.expects(:puts).with('    foo')
         Raptor.stubs(:depth).returns(2)
-        Raptor::Formatter.context_started('foo')
+        Raptor.formatter.context_started('foo')
       end
     end
 
@@ -321,9 +328,9 @@ describe Raptor::Formatter do
 
     it "prints the description in green, indented based on current depth" do
       with_mocha do
-        Raptor::Formatter.expects(:puts).with("    \e[32mfoo\e[0m")
+        Raptor.formatter.expects(:puts).with("    \e[32mfoo\e[0m")
         Raptor.stubs(:depth).returns(2)
-        Raptor::Formatter.example_passed('foo')
+        Raptor.formatter.example_passed('foo')
       end
     end
 
@@ -333,10 +340,10 @@ describe Raptor::Formatter do
 
     it "prints the indented description in red and the exception" do
       with_mocha do
-        Raptor::Formatter.expects(:puts).with("    \e[31mfoo\e[0m")
-        Raptor::Formatter.expects(:puts).with('#<Raptor::Error: foo>')
+        Raptor.formatter.expects(:puts).with("    \e[31mfoo\e[0m")
+        Raptor.formatter.expects(:puts).with('#<Raptor::Error: foo>')
         Raptor.stubs(:depth).returns(2)
-        Raptor::Formatter.example_failed('foo', Raptor::Error.new('foo'))
+        Raptor.formatter.example_failed('foo', Raptor::Error.new('foo'))
       end
     end
 
