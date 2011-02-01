@@ -2,7 +2,7 @@ module Raptor
 
   class << self
     attr_writer :depth
-    attr_accessor :formatter
+    attr_accessor :formatter, :example
   end
 
   def self.contexts
@@ -65,7 +65,7 @@ module Raptor
     alias_method :describe, :context
 
     def example(description, &block)
-      example = Example.new(description, &block)
+      example = Raptor.example.new(description, &block)
       examples << example
       example
     end
@@ -120,6 +120,7 @@ module Raptor
   end
 
   @formatter = Formatters::Documentation
+  @example = Example
 
 end
 

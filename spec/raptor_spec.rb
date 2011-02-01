@@ -32,6 +32,13 @@ describe Raptor do
     end
   end
 
+  describe ".example" do
+
+    it "returns Raptor::Example by default" do
+      Unstable::Raptor.example.to_s.should == 'Raptor::Example'
+    end
+  end
+
   describe ".run" do
 
     it "runs the examples" do
