@@ -2,18 +2,18 @@ module Raptor
 
   class << self
     attr_writer :depth
+  end
 
-    def contexts
-      @contexts ||= []
-    end
+  def self.contexts
+    @contexts ||= []
+  end
 
-    def depth
-      @depth ||= 0
-    end
+  def self.depth
+    @depth ||= 0
+  end
 
-    def run
-      contexts.each { |context| context.run }
-    end
+  def self.run
+    contexts.each { |context| context.run }
   end
 
   class Should
