@@ -15,6 +15,7 @@ module Raptor
 
   def self.run
     contexts.each { |context| context.run }
+    puts counter.inspect
   end
 
   class Should
@@ -86,8 +87,10 @@ module Raptor
         result = instance_eval(&@block)
       rescue Object => exception
         Raptor.formatter.example_failed(@description, exception)
+        Raptor.counter[:failed_examples] += 1
       else
         Raptor.formatter.example_passed(@description)
+        Raptor.counter[:passed_examples] += 1
       ensure
         return result
       end
