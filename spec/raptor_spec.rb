@@ -30,6 +30,7 @@ describe Raptor do
     it "returns Raptor::Formatters::Documentation by default" do
       Unstable::Raptor.formatter.to_s.should == 'Raptor::Formatters::Documentation'
     end
+
   end
 
   describe ".example" do
@@ -37,6 +38,20 @@ describe Raptor do
     it "returns Raptor::Example by default" do
       Unstable::Raptor.example.to_s.should == 'Raptor::Example'
     end
+
+  end
+
+  describe '.counter' do
+
+    it "returns the current value" do
+      Unstable::Raptor.counter['foo'] = 'bar'
+      Unstable::Raptor.counter['foo'].should == 'bar'
+    end
+
+    it "returns 0 by default" do
+      Unstable::Raptor.counter['bar'].should == 0
+    end
+
   end
 
   describe ".run" do
