@@ -64,7 +64,15 @@ describe Raptor do
           [Unstable::Raptor::Context.new('foo')] * 3
         )
         Unstable::Raptor.contexts.each { |context| context.expects(:run) }
-        Unstable::Raptor.stubs(:puts)
+        Unstable::Raptor.formatter.stubs(:suite_finished)
+        Unstable::Raptor.run
+      end
+    end
+
+    it "calls Raptor.formatter.suite_finished" do
+      with_mocha do
+        Unstable::Raptor.formatter.expects(:suite_finished)
+        Unstable::Raptor.stubs(:contexts).returns([])
         Unstable::Raptor.run
       end
     end

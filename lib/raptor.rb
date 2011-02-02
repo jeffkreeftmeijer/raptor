@@ -15,7 +15,7 @@ module Raptor
 
   def self.run
     contexts.each { |context| context.run }
-    puts counter.inspect
+    formatter.suite_finished
   end
 
   class Should
@@ -113,6 +113,10 @@ module Raptor
       def self.example_failed(description, exception)
         puts "#{'  ' * Raptor.depth}\e[31m#{description}\e[0m"
         puts exception.inspect
+      end
+
+      def self.suite_finished
+        puts Raptor.counter.inspect
       end
 
     end
