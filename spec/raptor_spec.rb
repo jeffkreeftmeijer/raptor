@@ -155,6 +155,7 @@ describe Raptor::Context do
         example = context.example('bar') { called = true }
         Raptor.formatter.stubs(:context_started)
         Raptor.formatter.stubs(:example_passed)
+        Raptor.counter.stubs(:[]=)
         context.run
         called.should == true
       end
@@ -175,6 +176,7 @@ describe Raptor::Context do
 
         Raptor.formatter.stubs(:context_started)
         Raptor.formatter.stubs(:example_passed)
+        Raptor.counter.stubs(:[]=)
         context.run
 
         depth.should == original_depth + 1
@@ -312,17 +314,21 @@ describe Raptor::Example do
   describe "#run" do
 
     it "runs the block" do
-      example = Unstable::Raptor::Example.new('foo') { 'baz' }
-      Raptor.formatter.stubs(:example_passed)
-      example.run.should == 'baz'
-      Raptor.counter[:passed_examples] -= 1
+      with_mocha do
+        example = Unstable::Raptor::Example.new('foo') { 'baz' }
+        Raptor.formatter.stubs(:example_passed)
+        Raptor.counter.stubs(:[]=)
+        example.run.should == 'baz'
+      end
     end
 
     it "runs in context" do
-      example = Unstable::Raptor::Example.new('foo') { self }
-      Raptor.formatter.stubs(:example_passed)
-      example.run.should == example
-      Raptor.counter[:passed_examples] -= 1
+      with_mocha do
+        example = Unstable::Raptor::Example.new('foo') { self }
+        Raptor.formatter.stubs(:example_passed)
+        Raptor.counter.stubs(:[]=)
+        example.run.should == example
+      end
     end
 
     context "when no error is raised" do
@@ -330,18 +336,21 @@ describe Raptor::Example do
       it "calls Raptor.formatter.example_passed" do
         with_mocha do
           Raptor.formatter.expects(:example_passed).with('foo')
+          Raptor.counter.stubs(:[]=)
           Unstable::Raptor::Example.new('foo') { }.run
-          Raptor.counter[:passed_examples] -= 1
         end
       end
 
       it "increases Raptor.counter[:passed_examples]" do
         with_mocha do
-          count_before_run = Raptor.counter[:passed_examples]
           Raptor.formatter.stubs(:example_passed)
+
+          Raptor.counter.expects(:[]=).with(
+            :passed_examples,
+            Raptor.counter[:passed_examples] + 1
+          )
+
           Unstable::Raptor::Example.new('foo') { }.run
-          Raptor.counter[:passed_examples] -= 1
-          Raptor.counter[:passed_examples].should == count_before_run
         end
       end
 
@@ -353,8 +362,8 @@ describe Raptor::Example do
         with_mocha do
           error = RuntimeError.new('omgno!')
           Raptor.formatter.expects(:example_failed).with('foo', error)
+          Raptor.counter.stubs(:[]=)
           Unstable::Raptor::Example.new('foo') { raise error }.run
-          Raptor.counter[:failed_examples] -= 1
         end
       end
 
@@ -362,9 +371,13 @@ describe Raptor::Example do
         with_mocha do
           count_before_run = Unstable::Raptor.counter[:failed_examples]
           Raptor.formatter.stubs(:example_failed)
+
+          Raptor.counter.expects(:[]=).with(
+            :failed_examples,
+            Raptor.counter[:failed_examples] + 1
+          )
+
           Unstable::Raptor::Example.new('foo') { raise 'omgno' }.run
-          Raptor.counter[:failed_examples] -= 1
-          Raptor.counter[:failed_examples].should == count_before_run
         end
       end
 
