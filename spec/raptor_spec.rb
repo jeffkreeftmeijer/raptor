@@ -45,8 +45,7 @@ describe Raptor do
 
     it "returns the current value" do
       Unstable::Raptor.counter['foo'] = 'bar'
-      Unstable::Raptor.counter['foo'].should == 'bar'
-      Unstable::Raptor.counter.delete('foo')
+      Unstable::Raptor.counter.delete('foo').should == 'bar'
     end
 
     it "returns 0 by default" do
@@ -59,20 +58,24 @@ describe Raptor do
 
     it "runs the examples" do
       with_mocha do
+        Unstable::Raptor.formatter.stubs(:suite_finished)
+
         Unstable::Raptor.instance_variable_set(
           :@contexts,
           [Unstable::Raptor::Context.new('foo')] * 3
         )
+
         Unstable::Raptor.contexts.each { |context| context.expects(:run) }
-        Unstable::Raptor.formatter.stubs(:suite_finished)
+
         Unstable::Raptor.run
       end
     end
 
     it "calls Raptor.formatter.suite_finished" do
       with_mocha do
-        Unstable::Raptor.formatter.expects(:suite_finished)
         Unstable::Raptor.stubs(:contexts).returns([])
+        Unstable::Raptor.formatter.expects(:suite_finished)
+
         Unstable::Raptor.run
       end
     end
@@ -131,18 +134,18 @@ describe Raptor::Context do
 
     it "runs the block" do
       with_mocha do
-        context = Unstable::Raptor::Context.new('foo') { 'baz' }
         Raptor.formatter.stubs(:context_started)
+        context = Unstable::Raptor::Context.new('foo') { 'baz' }
         context.run.should == 'baz'
       end
     end
 
     it "runs nested contexts" do
       with_mocha do
+        Raptor.formatter.stubs(:context_started)
         called = false
         parent_context = Unstable::Raptor::Context.new('foo') {}
         context = parent_context.context('bar') { called = true }
-        Raptor.formatter.stubs(:context_started)
         parent_context.run
         called.should == true
       end
@@ -187,13 +190,13 @@ describe Raptor::Context do
 
     it "increases Raptor.depth while running nested contexts" do
       with_mocha do
+        Raptor.formatter.stubs(:context_started)
+        Raptor.formatter.stubs(:example_passed) 
         original_depth, depth = Raptor.depth, 0
 
         parent_context = Unstable::Raptor::Context.new('foo') {}
         context = parent_context.context('bar') { depth = Raptor.depth }
 
-        Raptor.formatter.stubs(:context_started)
-        Raptor.formatter.stubs(:example_passed) 
         parent_context.run
 
         depth.should == original_depth + 1
@@ -206,6 +209,7 @@ describe Raptor::Context do
   it "calls Raptor.formatter#context_started" do
     with_mocha do
       Raptor.formatter.expects(:context_started).with('foo')
+
       Unstable::Raptor::Context.new('foo') {}.run
     end
   end
@@ -271,8 +275,8 @@ describe Raptor::Context do
 
     it "returns an instance of Raptor::Example" do
       with_mocha do
-        context = Unstable::Raptor::Context.new('foo')
         Raptor.counter.stubs(:[]=)
+        context = Unstable::Raptor::Context.new('foo')
         example = context.example('foo') { 'bar' }
         example.class.should == Raptor::Example
         example.instance_variable_get(:@description).should == 'foo'
@@ -282,8 +286,8 @@ describe Raptor::Context do
 
     it "adds an example to context.examples" do
       with_mocha do
-        context = Unstable::Raptor::Context.new('foo')
         Raptor.counter.stubs(:[]=)
+        context = Unstable::Raptor::Context.new('foo')
         example = context.example('foo')
         context.examples.pop.should == example
       end
@@ -291,11 +295,13 @@ describe Raptor::Context do
 
     it "increases Raptor.counter[:examples]" do
       with_mocha do
-        context = Unstable::Raptor::Context.new('foo')
         Raptor.counter.expects(:[]=).with(
           :examples,
           Raptor.counter[:examples] + 1
         )
+
+        context = Unstable::Raptor::Context.new('foo')
+
         example = context.example('foo')
       end
     end
@@ -306,8 +312,8 @@ describe Raptor::Context do
 
     it "is an alias for #example" do
       with_mocha do
-        context = Unstable::Raptor::Context.new('foo')
         Raptor.counter.stubs(:[]=)
+        context = Unstable::Raptor::Context.new('foo')
         context.it('foo').class.should == Raptor::Example
       end
     end
@@ -336,18 +342,18 @@ describe Raptor::Example do
 
     it "runs the block" do
       with_mocha do
-        example = Unstable::Raptor::Example.new('foo') { 'baz' }
         Raptor.formatter.stubs(:example_passed)
         Raptor.counter.stubs(:[]=)
+        example = Unstable::Raptor::Example.new('foo') { 'baz' }
         example.run.should == 'baz'
       end
     end
 
     it "runs in context" do
       with_mocha do
-        example = Unstable::Raptor::Example.new('foo') { self }
         Raptor.formatter.stubs(:example_passed)
         Raptor.counter.stubs(:[]=)
+        example = Unstable::Raptor::Example.new('foo') { self }
         example.run.should == example
       end
     end
@@ -356,8 +362,9 @@ describe Raptor::Example do
 
       it "calls Raptor.formatter.example_passed" do
         with_mocha do
-          Raptor.formatter.expects(:example_passed).with('foo')
           Raptor.counter.stubs(:[]=)
+          Raptor.formatter.expects(:example_passed).with('foo')
+
           Unstable::Raptor::Example.new('foo') { }.run
         end
       end
@@ -365,7 +372,6 @@ describe Raptor::Example do
       it "increases Raptor.counter[:passed_examples]" do
         with_mocha do
           Raptor.formatter.stubs(:example_passed)
-
           Raptor.counter.expects(:[]=).with(
             :passed_examples,
             Raptor.counter[:passed_examples] + 1
@@ -381,18 +387,17 @@ describe Raptor::Example do
 
       it "calls Raptor.formatter.example_failed" do
         with_mocha do
+          Raptor.counter.stubs(:[]=)
           error = RuntimeError.new('omgno!')
           Raptor.formatter.expects(:example_failed).with('foo', error)
-          Raptor.counter.stubs(:[]=)
+
           Unstable::Raptor::Example.new('foo') { raise error }.run
         end
       end
 
       it "increases Raptor.counter[:failed_examples]" do
         with_mocha do
-          count_before_run = Unstable::Raptor.counter[:failed_examples]
           Raptor.formatter.stubs(:example_failed)
-
           Raptor.counter.expects(:[]=).with(
             :failed_examples,
             Raptor.counter[:failed_examples] + 1
@@ -414,8 +419,8 @@ describe Raptor::Formatters::Documentation do
 
     it "prints the description, indented based on current depth" do
       with_mocha do
-        Raptor.formatter.expects(:puts).with('    foo')
         Raptor.stubs(:depth).returns(2)
+        Raptor.formatter.expects(:puts).with('    foo')
         Raptor.formatter.context_started('foo')
       end
     end
@@ -426,8 +431,8 @@ describe Raptor::Formatters::Documentation do
 
     it "prints the description in green, indented based on current depth" do
       with_mocha do
-        Raptor.formatter.expects(:puts).with("    \e[32mfoo\e[0m")
         Raptor.stubs(:depth).returns(2)
+        Raptor.formatter.expects(:puts).with("    \e[32mfoo\e[0m")
         Raptor.formatter.example_passed('foo')
       end
     end
@@ -438,9 +443,10 @@ describe Raptor::Formatters::Documentation do
 
     it "prints the indented description in red and the exception" do
       with_mocha do
+        Raptor.stubs(:depth).returns(2)
         Raptor.formatter.expects(:puts).with("    \e[31mfoo\e[0m")
         Raptor.formatter.expects(:puts).with('#<Raptor::Error: foo>')
-        Raptor.stubs(:depth).returns(2)
+
         Raptor.formatter.example_failed('foo', Raptor::Error.new('foo'))
       end
     end
@@ -455,6 +461,7 @@ describe Object do
     it "returns an instance of Raptor::Should" do
       object = Unstable::Object.new
       should = object.should
+
       should.class.should == Raptor::Should
       should.instance_variable_get(:@object).should == object
     end
@@ -469,9 +476,11 @@ describe Kernel do
 
     it "returns an instance of Raptor::Context" do
       context = Unstable::Kernel.context('foo') { 'bar' }
+
       context.class.should == Raptor::Context
       context.instance_variable_get(:@description).should == 'foo'
       context.instance_variable_get(:@block).call.should == 'bar'
+
       Raptor.contexts.pop # clean up the created context
     end
 
