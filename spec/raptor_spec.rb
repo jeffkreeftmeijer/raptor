@@ -315,14 +315,14 @@ describe Raptor::Example do
       example = Unstable::Raptor::Example.new('foo') { 'baz' }
       Raptor.formatter.stubs(:example_passed)
       example.run.should == 'baz'
-      Unstable::Raptor.counter[:passed_examples] -= 1
+      Raptor.counter[:passed_examples] -= 1
     end
 
     it "runs in context" do
       example = Unstable::Raptor::Example.new('foo') { self }
       Raptor.formatter.stubs(:example_passed)
       example.run.should == example
-      Unstable::Raptor.counter[:passed_examples] -= 1
+      Raptor.counter[:passed_examples] -= 1
     end
 
     context "when no error is raised" do
@@ -331,17 +331,17 @@ describe Raptor::Example do
         with_mocha do
           Raptor.formatter.expects(:example_passed).with('foo')
           Unstable::Raptor::Example.new('foo') { }.run
-          Unstable::Raptor.counter[:passed_examples] -= 1
+          Raptor.counter[:passed_examples] -= 1
         end
       end
 
       it "increases Raptor.counter[:passed_examples]" do
         with_mocha do
-          count_before_run = Unstable::Raptor.counter[:passed_examples]
+          count_before_run = Raptor.counter[:passed_examples]
           Raptor.formatter.stubs(:example_passed)
           Unstable::Raptor::Example.new('foo') { }.run
-          Unstable::Raptor.counter[:passed_examples] -= 1
-          Unstable::Raptor.counter[:passed_examples].should == count_before_run
+          Raptor.counter[:passed_examples] -= 1
+          Raptor.counter[:passed_examples].should == count_before_run
         end
       end
 
@@ -354,7 +354,7 @@ describe Raptor::Example do
           error = RuntimeError.new('omgno!')
           Raptor.formatter.expects(:example_failed).with('foo', error)
           Unstable::Raptor::Example.new('foo') { raise error }.run
-          Unstable::Raptor.counter[:failed_examples] -= 1
+          Raptor.counter[:failed_examples] -= 1
         end
       end
 
@@ -363,8 +363,8 @@ describe Raptor::Example do
           count_before_run = Unstable::Raptor.counter[:failed_examples]
           Raptor.formatter.stubs(:example_failed)
           Unstable::Raptor::Example.new('foo') { raise 'omgno' }.run
-          Unstable::Raptor.counter[:failed_examples] -= 1
-          Unstable::Raptor.counter[:failed_examples].should == count_before_run
+          Raptor.counter[:failed_examples] -= 1
+          Raptor.counter[:failed_examples].should == count_before_run
         end
       end
 
