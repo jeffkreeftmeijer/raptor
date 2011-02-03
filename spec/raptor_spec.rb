@@ -204,14 +204,14 @@ describe Raptor::Context do
       end
     end
 
-  end
+    it "calls Raptor.formatter#context_started" do
+      with_mocha do
+        Raptor.formatter.expects(:context_started).with('foo')
 
-  it "calls Raptor.formatter#context_started" do
-    with_mocha do
-      Raptor.formatter.expects(:context_started).with('foo')
-
-      Unstable::Raptor::Context.new('foo') {}.run
+        Unstable::Raptor::Context.new('foo') {}.run
+      end
     end
+
   end
 
   describe "#contexts" do
