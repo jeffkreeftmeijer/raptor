@@ -14,6 +14,7 @@ module Raptor
   end
 
   def self.run
+    contexts.each { |context| context.setup }
     contexts.each { |context| context.run }
     formatter.suite_finished
   end
@@ -47,14 +48,18 @@ module Raptor
       @block = block
     end
 
+    def setup
+      result = instance_eval(&@block)
+      contexts.each { |context| context.setup }
+      result
+    end
+
     def run
       Raptor.formatter.context_started(@description)
-      result = instance_eval(&@block)
       Raptor.depth += 1
       examples.each { |example| example.run }
       contexts.each { |context| context.run }
       Raptor.depth -= 1
-      result
     end
 
     def context(description, &block)

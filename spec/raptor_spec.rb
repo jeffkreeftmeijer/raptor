@@ -56,13 +56,31 @@ describe Raptor do
 
   describe ".run" do
 
-    it "runs the examples" do
+    it "sets up the contexts" do
       with_mocha do
         Unstable::Raptor.formatter.stubs(:suite_finished)
 
         Unstable::Raptor.instance_variable_set(
           :@contexts,
-          [Unstable::Raptor::Context.new('foo')] * 3
+          [Unstable::Raptor::Context.new('foo') {}] * 3
+        )
+
+        Unstable::Raptor.contexts.each do |context|
+          context.stubs(:run)
+          context.expects(:setup)
+        end
+
+        Unstable::Raptor.run
+      end
+    end
+
+    it "runs the contexts" do
+      with_mocha do
+        Unstable::Raptor.formatter.stubs(:suite_finished)
+
+        Unstable::Raptor.instance_variable_set(
+          :@contexts,
+          [Unstable::Raptor::Context.new('foo') {}] * 3
         )
 
         Unstable::Raptor.contexts.each { |context| context.expects(:run) }
@@ -130,24 +148,39 @@ describe Raptor::Context do
 
   end
 
-  describe "#run" do
+  describe "#setup" do
 
     it "runs the block" do
       with_mocha do
-        Raptor.formatter.stubs(:context_started)
         context = Unstable::Raptor::Context.new('foo') { 'baz' }
-        context.run.should == 'baz'
+        context.setup.should == 'baz'
       end
     end
+
+    it "runs in context" do
+      context = Unstable::Raptor::Context.new('foo') { self }
+      context.setup.should == context
+    end
+
+    it "sets up nested contexts" do
+      called = false
+      parent_context = Unstable::Raptor::Context.new('foo') {}
+      context = parent_context.context('bar') { called = true }
+      parent_context.setup
+      called.should == true
+    end
+
+  end
+
+  describe "#run" do
 
     it "runs nested contexts" do
       with_mocha do
         Raptor.formatter.stubs(:context_started)
-        called = false
         parent_context = Unstable::Raptor::Context.new('foo') {}
-        context = parent_context.context('bar') { called = true }
+        context = parent_context.context('bar') { }
+        context.expects(:run)
         parent_context.run
-        called.should == true
       end
     end
 
@@ -162,12 +195,6 @@ describe Raptor::Context do
         context.run
         called.should == true
       end
-    end
-
-    it "runs in context" do
-      Raptor.formatter.stubs(:context_started)
-      context = Unstable::Raptor::Context.new('foo') { self }
-      context.run.should == context
     end
 
     it "increases Raptor.depth while running nested examples" do
@@ -192,15 +219,15 @@ describe Raptor::Context do
       with_mocha do
         Raptor.formatter.stubs(:context_started)
         Raptor.formatter.stubs(:example_passed) 
-        original_depth, depth = Raptor.depth, 0
 
         parent_context = Unstable::Raptor::Context.new('foo') {}
-        context = parent_context.context('bar') { depth = Raptor.depth }
+        context = parent_context.context('bar') { }
+
+        Raptor.stubs(:depth).returns(1)
+        Raptor.expects(:depth=).with(2).twice
+        Raptor.expects(:depth=).with(0).twice
 
         parent_context.run
-
-        depth.should == original_depth + 1
-        Raptor.depth.should == original_depth
       end
     end
 
