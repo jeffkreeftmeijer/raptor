@@ -68,6 +68,7 @@ module Raptor
     def example(description, &block)
       example = Raptor.example.new(description, &block)
       examples << example
+      Raptor.counter[:examples] += 1
       example
     end
 

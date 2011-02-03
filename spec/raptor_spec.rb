@@ -150,33 +150,34 @@ describe Raptor::Context do
 
     it "runs nested examples" do
       with_mocha do
+        Raptor.counter.stubs(:[]=)
+        Raptor.formatter.stubs(:context_started)
+        Raptor.formatter.stubs(:example_passed)
         called = false
         context = Unstable::Raptor::Context.new('foo') {}
         example = context.example('bar') { called = true }
-        Raptor.formatter.stubs(:context_started)
-        Raptor.formatter.stubs(:example_passed)
-        Raptor.counter.stubs(:[]=)
         context.run
         called.should == true
       end
     end
 
     it "runs in context" do
-      context = Unstable::Raptor::Context.new('foo') { self }
       Raptor.formatter.stubs(:context_started)
+      context = Unstable::Raptor::Context.new('foo') { self }
       context.run.should == context
     end
 
     it "increases Raptor.depth while running nested examples" do
       with_mocha do
+        Raptor.formatter.stubs(:context_started)
+        Raptor.formatter.stubs(:example_passed)
+        Raptor.counter.stubs(:[]=)
+
         original_depth, depth = Raptor.depth, 0
 
         context = Unstable::Raptor::Context.new('foo') {}
         example = context.example('bar') { depth = Raptor.depth }
 
-        Raptor.formatter.stubs(:context_started)
-        Raptor.formatter.stubs(:example_passed)
-        Raptor.counter.stubs(:[]=)
         context.run
 
         depth.should == original_depth + 1
@@ -269,17 +270,34 @@ describe Raptor::Context do
   describe "#example" do
 
     it "returns an instance of Raptor::Example" do
-      context = Unstable::Raptor::Context.new('foo')
-      example = context.example('foo') { 'bar' }
-      example.class.should == Raptor::Example
-      example.instance_variable_get(:@description).should == 'foo'
-      example.instance_variable_get(:@block).call.should == 'bar'
+      with_mocha do
+        context = Unstable::Raptor::Context.new('foo')
+        Raptor.counter.stubs(:[]=)
+        example = context.example('foo') { 'bar' }
+        example.class.should == Raptor::Example
+        example.instance_variable_get(:@description).should == 'foo'
+        example.instance_variable_get(:@block).call.should == 'bar'
+      end
     end
 
     it "adds an example to context.examples" do
-      context = Unstable::Raptor::Context.new('foo')
-      example = context.example('foo')
-      context.examples.pop.should == example
+      with_mocha do
+        context = Unstable::Raptor::Context.new('foo')
+        Raptor.counter.stubs(:[]=)
+        example = context.example('foo')
+        context.examples.pop.should == example
+      end
+    end
+
+    it "increases Raptor.counter[:examples]" do
+      with_mocha do
+        context = Unstable::Raptor::Context.new('foo')
+        Raptor.counter.expects(:[]=).with(
+          :examples,
+          Raptor.counter[:examples] + 1
+        )
+        example = context.example('foo')
+      end
     end
 
   end
@@ -287,8 +305,11 @@ describe Raptor::Context do
   describe "#it" do
 
     it "is an alias for #example" do
-      context = Unstable::Raptor::Context.new('foo')
-      context.it('foo').class.should == Raptor::Example
+      with_mocha do
+        context = Unstable::Raptor::Context.new('foo')
+        Raptor.counter.stubs(:[]=)
+        context.it('foo').class.should == Raptor::Example
+      end
     end
 
   end
