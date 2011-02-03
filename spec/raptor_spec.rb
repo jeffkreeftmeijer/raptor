@@ -58,6 +58,7 @@ describe Raptor do
 
     it "sets up the contexts" do
       with_mocha do
+        Unstable::Raptor.formatter.stubs(:suite_started)
         Unstable::Raptor.formatter.stubs(:suite_finished)
 
         Unstable::Raptor.instance_variable_set(
@@ -76,6 +77,7 @@ describe Raptor do
 
     it "runs the contexts" do
       with_mocha do
+        Unstable::Raptor.formatter.stubs(:suite_started)
         Unstable::Raptor.formatter.stubs(:suite_finished)
 
         Unstable::Raptor.instance_variable_set(
@@ -89,9 +91,10 @@ describe Raptor do
       end
     end
 
-    it "calls Raptor.formatter.suite_finished" do
+    it "calls Raptor.formatter.suite_started/suite_finished" do
       with_mocha do
         Unstable::Raptor.stubs(:contexts).returns([])
+        Unstable::Raptor.formatter.expects(:suite_started)
         Unstable::Raptor.formatter.expects(:suite_finished)
 
         Unstable::Raptor.run

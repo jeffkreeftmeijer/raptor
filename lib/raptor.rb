@@ -15,6 +15,7 @@ module Raptor
 
   def self.run
     contexts.each { |context| context.setup }
+    formatter.suite_started
     contexts.each { |context| context.run }
     formatter.suite_finished
   end
@@ -119,6 +120,10 @@ module Raptor
       def self.example_failed(description, exception)
         puts "#{'  ' * Raptor.depth}\e[31m#{description}\e[0m"
         puts exception.inspect
+      end
+
+      def self.suite_started
+        puts Raptor.counter.inspect
       end
 
       def self.suite_finished
