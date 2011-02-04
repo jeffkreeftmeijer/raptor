@@ -450,8 +450,8 @@ describe Raptor::Formatters::Documentation do
     it "prints the description, indented based on current depth" do
       with_mocha do
         Raptor.stubs(:depth).returns(2)
-        Raptor.formatter.expects(:puts).with('    foo')
-        Raptor.formatter.context_started('foo')
+        Raptor::Formatters::Documentation.expects(:puts).with('    foo')
+        Raptor::Formatters::Documentation.context_started('foo')
       end
     end
 
@@ -462,8 +462,8 @@ describe Raptor::Formatters::Documentation do
     it "prints the description in green, indented based on current depth" do
       with_mocha do
         Raptor.stubs(:depth).returns(2)
-        Raptor.formatter.expects(:puts).with("    \e[32mfoo\e[0m")
-        Raptor.formatter.example_passed('foo')
+        Raptor::Formatters::Documentation.expects(:puts).with("    \e[32mfoo\e[0m")
+        Raptor::Formatters::Documentation.example_passed('foo')
       end
     end
 
@@ -474,10 +474,10 @@ describe Raptor::Formatters::Documentation do
     it "prints the indented description in red and the exception" do
       with_mocha do
         Raptor.stubs(:depth).returns(2)
-        Raptor.formatter.expects(:puts).with("    \e[31mfoo\e[0m")
-        Raptor.formatter.expects(:puts).with('#<Raptor::Error: foo>')
+        Raptor::Formatters::Documentation.expects(:puts).with("    \e[31mfoo\e[0m")
+        Raptor::Formatters::Documentation.expects(:puts).with('#<Raptor::Error: foo>')
 
-        Raptor.formatter.example_failed('foo', Raptor::Error.new('foo'))
+        Raptor::Formatters::Documentation.example_failed('foo', Raptor::Error.new('foo'))
       end
     end
 
