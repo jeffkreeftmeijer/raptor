@@ -105,7 +105,7 @@ module Raptor
 
   end
 
-  module Formatters
+  module Formatter
 
     class Documentation
 
@@ -137,7 +137,7 @@ module Raptor
   class Error < StandardError
   end
 
-  @formatter = Formatters::Documentation
+  @formatter = Formatter::Documentation
   @example = Example
   @counter = Hash.new(0)
 
