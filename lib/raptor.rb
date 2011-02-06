@@ -22,9 +22,37 @@ module Raptor
 
   class Should
 
+    # When initializing a new `Raptor::Should` object, another object should be
+    # passed to do comparisons on:
+    #
+    #    Raptor::Should.new('foo') 
+    #    # <Raptor::Should:0xb74b30a4 @object="foo">
+    #
+    # An instance of `Raptor::Should` gets called when calling `#should` on any
+    # object in your test suite:
+    #
+    #    'foo'.should
+    #    # <Raptor::Should:0xb74b30a4 @object="foo">
+
     def initialize(object)
       @object = object
     end
+
+    # Normally, `Object#==` compares `self` to the first argument:
+    #
+    #    'foo'.==('bar') # => false
+    #    # foo is self, bar is the first argument
+    #
+    # In `Raptor::Should` we need to overwrite this to compare `@object`
+    # (that's the object we passed when we created this `Raptor::Should`
+    # object) to the first argument.
+    #
+    #    Raptor::Should.new('foo').==('bar') # => false
+    #    # foo is @object, bar is the first argument.
+    #
+    # Besides returning the comparison's result, an error gets raised when the
+    # result is false. This error can be rescued by the `Raptor::Example` object
+    # later to make the example fail.
 
     def ==(comparison)
       result = @object == comparison

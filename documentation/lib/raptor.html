@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta http-equiv="content-type" content="text/html;charset=utf-8">
+  <title>raptor.rb</title>
+  <link rel="stylesheet" href="http://jashkenas.github.com/docco/resources/docco.css">
+</head>
+<body>
+<div id='container'>
+  <div id="background"></div>
+  <table cellspacing=0 cellpadding=0>
+  <thead>
+    <tr>
+      <th class=docs><h1>raptor.rb</h1></th>
+      <th class=code></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr id='section-1'>
+      <td class=docs>
+        <div class="octowrap">
+          <a class="octothorpe" href="#section-1">#</a>
+        </div>
+        
+      </td>
+      <td class=code>
+        <div class='highlight'><pre><span class="k">module</span> <span class="nn">Raptor</span>
+
+  <span class="k">class</span> <span class="o">&lt;&lt;</span> <span class="nb">self</span>
+    <span class="kp">attr_writer</span> <span class="ss">:depth</span>
+    <span class="kp">attr_accessor</span> <span class="ss">:formatter</span><span class="p">,</span> <span class="ss">:example</span><span class="p">,</span> <span class="ss">:counter</span>
+  <span class="k">end</span>
+
+  <span class="k">def</span> <span class="nc">self</span><span class="o">.</span><span class="nf">contexts</span>
+    <span class="vi">@contexts</span> <span class="o">||=</span> <span class="o">[]</span>
+  <span class="k">end</span>
+
+  <span class="k">def</span> <span class="nc">self</span><span class="o">.</span><span class="nf">depth</span>
+    <span class="vi">@depth</span> <span class="o">||=</span> <span class="mi">0</span>
+  <span class="k">end</span>
+
+  <span class="k">def</span> <span class="nc">self</span><span class="o">.</span><span class="nf">run</span>
+    <span class="n">contexts</span><span class="o">.</span><span class="n">each</span> <span class="p">{</span> <span class="o">|</span><span class="n">context</span><span class="o">|</span> <span class="n">context</span><span class="o">.</span><span class="n">setup</span> <span class="p">}</span>
+    <span class="n">formatter</span><span class="o">.</span><span class="n">suite_started</span>
+    <span class="n">contexts</span><span class="o">.</span><span class="n">each</span> <span class="p">{</span> <span class="o">|</span><span class="n">context</span><span class="o">|</span> <span class="n">context</span><span class="o">.</span><span class="n">run</span> <span class="p">}</span>
+    <span class="n">formatter</span><span class="o">.</span><span class="n">suite_finished</span>
+  <span class="k">end</span>
+
+  <span class="k">class</span> <span class="nc">Should</span></pre></div>
+      </td>
+    </tr>
+    <tr id='section-2'>
+      <td class=docs>
+        <div class="octowrap">
+          <a class="octothorpe" href="#section-2">#</a>
+        </div>
+        <p> When initializing a new <code>Raptor::Should</code> object, another object should be
+ passed to do comparisons on:</p>
+
+<pre><code>Raptor::Should.new('foo') 
+# &lt;Raptor::Should:0xb74b30a4 @object="foo"&gt;
+</code></pre>
+
+<p> An instance of <code>Raptor::Should</code> gets called when calling <code>#should</code> on any
+ object in your test suite:</p>
+
+<pre><code>'foo'.should
+# &lt;Raptor::Should:0xb74b30a4 @object="foo"&gt;
+</code></pre>
+      </td>
+      <td class=code>
+        <div class='highlight'><pre>    <span class="k">def</span> <span class="nf">initialize</span><span class="p">(</span><span class="n">object</span><span class="p">)</span>
+      <span class="vi">@object</span> <span class="o">=</span> <span class="n">object</span>
+    <span class="k">end</span></pre></div>
+      </td>
+    </tr>
+    <tr id='section-3'>
+      <td class=docs>
+        <div class="octowrap">
+          <a class="octothorpe" href="#section-3">#</a>
+        </div>
+        <p> Normally, <code>Object#==</code> compares <code>self</code> to the first argument:</p>
+
+<pre><code>'foo'.==('bar') # =&gt; false
+# foo is self, bar is the first argument
+</code></pre>
+
+<p> In <code>Raptor::Should</code> we need to overwrite this to compare <code>@object</code>
+ (that&rsquo;s the object we passed when we created this <code>Raptor::Should</code>
+ object) to the first argument.</p>
+
+<pre><code>Raptor::Should.new('foo').==('bar') # =&gt; false
+# foo is @object, bar is the first argument.
+</code></pre>
+
+<p> Besides returning the comparison&rsquo;s result, an error gets raised when the
+ result is false. This error can be rescued by the <code>Raptor::Example</code> object
+ later to make the example fail.</p>
+
+      </td>
+      <td class=code>
+        <div class='highlight'><pre>    <span class="k">def</span> <span class="nf">==</span><span class="p">(</span><span class="n">comparison</span><span class="p">)</span>
+      <span class="n">result</span> <span class="o">=</span> <span class="vi">@object</span> <span class="o">==</span> <span class="n">comparison</span>
+      <span class="k">raise</span><span class="p">(</span><span class="no">Error</span><span class="p">,</span> <span class="s2">&quot;Expected </span><span class="si">#{</span><span class="n">comparison</span><span class="o">.</span><span class="n">inspect</span><span class="si">}</span><span class="s2">, got </span><span class="si">#{</span><span class="vi">@object</span><span class="o">.</span><span class="n">inspect</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span> <span class="k">unless</span> <span class="n">result</span>
+      <span class="n">result</span>
+    <span class="k">end</span>
+
+  <span class="k">end</span>
+
+  <span class="k">class</span> <span class="nc">Context</span>
+
+    <span class="k">def</span> <span class="nf">contexts</span>
+      <span class="vi">@contexts</span> <span class="o">||=</span> <span class="o">[]</span>
+    <span class="k">end</span>
+
+    <span class="k">def</span> <span class="nf">examples</span>
+      <span class="vi">@examples</span> <span class="o">||=</span> <span class="o">[]</span>
+    <span class="k">end</span>
+
+    <span class="k">def</span> <span class="nf">initialize</span><span class="p">(</span><span class="n">description</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">block</span><span class="p">)</span>
+      <span class="vi">@description</span> <span class="o">=</span> <span class="n">description</span>
+      <span class="vi">@block</span> <span class="o">=</span> <span class="n">block</span>
+    <span class="k">end</span>
+
+    <span class="k">def</span> <span class="nf">setup</span>
+      <span class="n">result</span> <span class="o">=</span> <span class="nb">instance_eval</span><span class="p">(</span><span class="o">&amp;</span><span class="vi">@block</span><span class="p">)</span>
+      <span class="n">contexts</span><span class="o">.</span><span class="n">each</span> <span class="p">{</span> <span class="o">|</span><span class="n">context</span><span class="o">|</span> <span class="n">context</span><span class="o">.</span><span class="n">setup</span> <span class="p">}</span>
+      <span class="n">result</span>
+    <span class="k">end</span>
+
+    <span class="k">def</span> <span class="nf">run</span>
+      <span class="no">Raptor</span><span class="o">.</span><span class="n">formatter</span><span class="o">.</span><span class="n">context_started</span><span class="p">(</span><span class="vi">@description</span><span class="p">)</span>
+      <span class="no">Raptor</span><span class="o">.</span><span class="n">depth</span> <span class="o">+=</span> <span class="mi">1</span>
+      <span class="n">examples</span><span class="o">.</span><span class="n">each</span> <span class="p">{</span> <span class="o">|</span><span class="n">example</span><span class="o">|</span> <span class="n">example</span><span class="o">.</span><span class="n">run</span> <span class="p">}</span>
+      <span class="n">contexts</span><span class="o">.</span><span class="n">each</span> <span class="p">{</span> <span class="o">|</span><span class="n">context</span><span class="o">|</span> <span class="n">context</span><span class="o">.</span><span class="n">run</span> <span class="p">}</span>
+      <span class="no">Raptor</span><span class="o">.</span><span class="n">depth</span> <span class="o">-=</span> <span class="mi">1</span>
+    <span class="k">end</span>
+
+    <span class="k">def</span> <span class="nf">context</span><span class="p">(</span><span class="n">description</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">block</span><span class="p">)</span>
+      <span class="n">context</span> <span class="o">=</span> <span class="no">Raptor</span><span class="o">::</span><span class="no">Context</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="n">description</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">block</span><span class="p">)</span>
+      <span class="n">contexts</span> <span class="o">&lt;&lt;</span> <span class="n">context</span>
+      <span class="n">context</span>
+    <span class="k">end</span>
+
+    <span class="n">alias_method</span> <span class="ss">:describe</span><span class="p">,</span> <span class="ss">:context</span>
+
+    <span class="k">def</span> <span class="nf">example</span><span class="p">(</span><span class="n">description</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">block</span><span class="p">)</span>
+      <span class="n">example</span> <span class="o">=</span> <span class="no">Raptor</span><span class="o">.</span><span class="n">example</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="n">description</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">block</span><span class="p">)</span>
+      <span class="n">examples</span> <span class="o">&lt;&lt;</span> <span class="n">example</span>
+      <span class="no">Raptor</span><span class="o">.</span><span class="n">counter</span><span class="o">[</span><span class="ss">:examples</span><span class="o">]</span> <span class="o">+=</span> <span class="mi">1</span>
+      <span class="n">example</span>
+    <span class="k">end</span>
+
+    <span class="n">alias_method</span> <span class="ss">:it</span><span class="p">,</span> <span class="ss">:example</span>
+
+  <span class="k">end</span>
+
+  <span class="k">class</span> <span class="nc">Example</span>
+
+    <span class="k">def</span> <span class="nf">initialize</span><span class="p">(</span><span class="n">description</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">block</span><span class="p">)</span>
+      <span class="vi">@description</span> <span class="o">=</span> <span class="n">description</span>
+      <span class="vi">@block</span> <span class="o">=</span> <span class="n">block</span>
+    <span class="k">end</span>
+
+    <span class="k">def</span> <span class="nf">run</span>
+      <span class="k">begin</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="nb">instance_eval</span><span class="p">(</span><span class="o">&amp;</span><span class="vi">@block</span><span class="p">)</span>
+      <span class="k">rescue</span> <span class="no">Object</span> <span class="o">=&gt;</span> <span class="n">exception</span>
+        <span class="no">Raptor</span><span class="o">.</span><span class="n">formatter</span><span class="o">.</span><span class="n">example_failed</span><span class="p">(</span><span class="vi">@description</span><span class="p">,</span> <span class="n">exception</span><span class="p">)</span>
+        <span class="no">Raptor</span><span class="o">.</span><span class="n">counter</span><span class="o">[</span><span class="ss">:failed_examples</span><span class="o">]</span> <span class="o">+=</span> <span class="mi">1</span>
+      <span class="k">else</span>
+        <span class="no">Raptor</span><span class="o">.</span><span class="n">formatter</span><span class="o">.</span><span class="n">example_passed</span><span class="p">(</span><span class="vi">@description</span><span class="p">)</span>
+        <span class="no">Raptor</span><span class="o">.</span><span class="n">counter</span><span class="o">[</span><span class="ss">:passed_examples</span><span class="o">]</span> <span class="o">+=</span> <span class="mi">1</span>
+      <span class="k">ensure</span>
+        <span class="k">return</span> <span class="n">result</span>
+      <span class="k">end</span>
+    <span class="k">end</span>
+
+  <span class="k">end</span>
+
+  <span class="k">module</span> <span class="nn">Formatter</span>
+
+    <span class="k">class</span> <span class="nc">Documentation</span>
+
+      <span class="k">def</span> <span class="nc">self</span><span class="o">.</span><span class="nf">context_started</span><span class="p">(</span><span class="n">description</span><span class="p">)</span>
+        <span class="nb">puts</span> <span class="s2">&quot;</span><span class="si">#{</span><span class="s1">&#39;  &#39;</span> <span class="o">*</span> <span class="no">Raptor</span><span class="o">.</span><span class="n">depth</span><span class="si">}#{</span><span class="n">description</span><span class="si">}</span><span class="s2">&quot;</span>
+      <span class="k">end</span>
+
+      <span class="k">def</span> <span class="nc">self</span><span class="o">.</span><span class="nf">example_passed</span><span class="p">(</span><span class="n">description</span><span class="p">)</span>
+        <span class="nb">puts</span> <span class="s2">&quot;</span><span class="si">#{</span><span class="s1">&#39;  &#39;</span> <span class="o">*</span> <span class="no">Raptor</span><span class="o">.</span><span class="n">depth</span><span class="si">}</span><span class="se">\e</span><span class="s2">[32m</span><span class="si">#{</span><span class="n">description</span><span class="si">}</span><span class="se">\e</span><span class="s2">[0m&quot;</span>
+      <span class="k">end</span>
+
+      <span class="k">def</span> <span class="nc">self</span><span class="o">.</span><span class="nf">example_failed</span><span class="p">(</span><span class="n">description</span><span class="p">,</span> <span class="n">exception</span><span class="p">)</span>
+        <span class="nb">puts</span> <span class="s2">&quot;</span><span class="si">#{</span><span class="s1">&#39;  &#39;</span> <span class="o">*</span> <span class="no">Raptor</span><span class="o">.</span><span class="n">depth</span><span class="si">}</span><span class="se">\e</span><span class="s2">[31m</span><span class="si">#{</span><span class="n">description</span><span class="si">}</span><span class="se">\e</span><span class="s2">[0m&quot;</span>
+        <span class="nb">puts</span> <span class="n">exception</span><span class="o">.</span><span class="n">inspect</span>
+      <span class="k">end</span>
+
+      <span class="k">def</span> <span class="nc">self</span><span class="o">.</span><span class="nf">suite_started</span>
+        <span class="nb">puts</span> <span class="no">Raptor</span><span class="o">.</span><span class="n">counter</span><span class="o">.</span><span class="n">inspect</span>
+      <span class="k">end</span>
+
+      <span class="k">def</span> <span class="nc">self</span><span class="o">.</span><span class="nf">suite_finished</span>
+        <span class="nb">puts</span> <span class="no">Raptor</span><span class="o">.</span><span class="n">counter</span><span class="o">.</span><span class="n">inspect</span>
+      <span class="k">end</span>
+
+    <span class="k">end</span>
+
+  <span class="k">end</span>
+
+  <span class="k">class</span> <span class="nc">Error</span> <span class="o">&lt;</span> <span class="no">StandardError</span>
+  <span class="k">end</span>
+
+  <span class="vi">@formatter</span> <span class="o">=</span> <span class="no">Formatter</span><span class="o">::</span><span class="no">Documentation</span>
+  <span class="vi">@example</span> <span class="o">=</span> <span class="no">Example</span>
+  <span class="vi">@counter</span> <span class="o">=</span> <span class="no">Hash</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+
+<span class="k">end</span>
+
+<span class="k">class</span> <span class="nc">Object</span>
+
+  <span class="k">def</span> <span class="nf">should</span>
+    <span class="no">Raptor</span><span class="o">::</span><span class="no">Should</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="nb">self</span><span class="p">)</span>
+  <span class="k">end</span>
+
+<span class="k">end</span>
+
+<span class="k">module</span> <span class="nn">Kernel</span>
+
+  <span class="k">def</span> <span class="nf">context</span><span class="p">(</span><span class="n">description</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">block</span><span class="p">)</span>
+    <span class="n">context</span> <span class="o">=</span> <span class="no">Raptor</span><span class="o">::</span><span class="no">Context</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="n">description</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">block</span><span class="p">)</span>
+    <span class="no">Raptor</span><span class="o">.</span><span class="n">contexts</span> <span class="o">&lt;&lt;</span> <span class="n">context</span>
+    <span class="n">context</span>
+  <span class="k">end</span>
+
+  <span class="n">alias_method</span> <span class="ss">:describe</span><span class="p">,</span> <span class="ss">:context</span>
+
+<span class="k">end</span></pre></div>
+      </td>
+    </tr>
+  </table>
+</div>
+</body>
