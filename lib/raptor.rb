@@ -77,6 +77,15 @@ module Raptor
       @block = block
     end
 
+    # Instead of directly running the test suite, Raptor has a setup phase
+    # first. During this setup, every context gets looped through to register
+    # it and its examples. Using this information, formatters can give
+    # information about the suite that's going to run.
+    #
+    # The blocks get `instance_eval`-ed to run them inside the context. This
+    # means that `this` is the parent context within the block. After that,
+    # every nested context gets set up too 
+
     def setup
       result = instance_eval(&@block)
       contexts.each { |context| context.setup }
