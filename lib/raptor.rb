@@ -171,20 +171,20 @@ module Raptor
 
   end
 
+  module Object
+
+    def should
+      Raptor::Should.new(self)
+    end
+
+  end
+
   class Error < StandardError
   end
 
   @formatter = Formatter::Documentation
   @example = Example
   @counter = Hash.new(0)
-
-end
-
-class Object
-
-  def should
-    Raptor::Should.new(self)
-  end
 
 end
 
@@ -199,3 +199,5 @@ module Kernel
   alias_method :describe, :context
 
 end
+
+Object.send :include, Raptor::Object
