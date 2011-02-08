@@ -129,38 +129,94 @@
         </div>
         <p> Instead of directly running the test suite, Raptor has a setup phase
  first. During this setup, every context gets looped through to register
- it and its examples. Using this information, formatters can give
- information about the suite that&rsquo;s going to run.</p>
+ it and its examples. This information can be used to let formatters give
+ information about the suite that&rsquo;s going to run, for example.</p>
 
 <p> The blocks get <code>instance_eval</code>-ed to run them inside the context. This
- means that <code>this</code> is the parent context within the block. After that,
- every nested context gets set up too</p>
+ means that <code>this</code> is the parent context within the block and every
+ nested context or example inside that block is added to the parent
+ context.</p>
 
+<p> After running the block, the context&rsquo;s nested contexts get set up too.</p>
       </td>
       <td class=code>
         <div class='highlight'><pre>    <span class="k">def</span> <span class="nf">setup</span>
       <span class="n">result</span> <span class="o">=</span> <span class="nb">instance_eval</span><span class="p">(</span><span class="o">&amp;</span><span class="vi">@block</span><span class="p">)</span>
       <span class="n">contexts</span><span class="o">.</span><span class="n">each</span> <span class="p">{</span> <span class="o">|</span><span class="n">context</span><span class="o">|</span> <span class="n">context</span><span class="o">.</span><span class="n">setup</span> <span class="p">}</span>
       <span class="n">result</span>
-    <span class="k">end</span>
-
-    <span class="k">def</span> <span class="nf">run</span>
+    <span class="k">end</span></pre></div>
+      </td>
+    </tr>
+    <tr id='section-5'>
+      <td class=docs>
+        <div class="octowrap">
+          <a class="octothorpe" href="#section-5">#</a>
+        </div>
+        <p> After setting everything using <code>Raptor::Context#setup</code>, the context is
+ ready to run. <code>Raptor::Context#run</code> starts by calling the current
+ formatter&rsquo;s <code>#context_started</code> method, to let it know the context has
+ started running. After that, <code>Raptor.depth</code> gets incremented. Again, this
+ information can be used by formatters. The nested examples and contexts
+ receive the <code>#run</code> call too and the depth is restored to its original
+ value.</p>
+      </td>
+      <td class=code>
+        <div class='highlight'><pre>    <span class="k">def</span> <span class="nf">run</span>
       <span class="no">Raptor</span><span class="o">.</span><span class="n">formatter</span><span class="o">.</span><span class="n">context_started</span><span class="p">(</span><span class="vi">@description</span><span class="p">)</span>
       <span class="no">Raptor</span><span class="o">.</span><span class="n">depth</span> <span class="o">+=</span> <span class="mi">1</span>
       <span class="n">examples</span><span class="o">.</span><span class="n">each</span> <span class="p">{</span> <span class="o">|</span><span class="n">example</span><span class="o">|</span> <span class="n">example</span><span class="o">.</span><span class="n">run</span> <span class="p">}</span>
       <span class="n">contexts</span><span class="o">.</span><span class="n">each</span> <span class="p">{</span> <span class="o">|</span><span class="n">context</span><span class="o">|</span> <span class="n">context</span><span class="o">.</span><span class="n">run</span> <span class="p">}</span>
       <span class="no">Raptor</span><span class="o">.</span><span class="n">depth</span> <span class="o">-=</span> <span class="mi">1</span>
-    <span class="k">end</span>
+    <span class="k">end</span></pre></div>
+      </td>
+    </tr>
+    <tr id='section-6'>
+      <td class=docs>
+        <div class="octowrap">
+          <a class="octothorpe" href="#section-6">#</a>
+        </div>
+        <p> To create a new context inside an existing context, the
+ <code>Raptor::Context#context</code> method is used. It will simply create a new
+ instance of <code>Raptor::Context</code> using the passed description and block and
+ add it to the current context&rsquo;s <code>#contexts</code> array. You can also use
+ <code>#describe</code> if you prefer. That&rsquo;s an alias for <code>#context</code>:</p>
 
-    <span class="k">def</span> <span class="nf">context</span><span class="p">(</span><span class="n">description</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">block</span><span class="p">)</span>
+<pre><code>Context.new('foo') do
+  context('bar') { }
+  describe('baz') { }
+end
+</code></pre>
+      </td>
+      <td class=code>
+        <div class='highlight'><pre>    <span class="k">def</span> <span class="nf">context</span><span class="p">(</span><span class="n">description</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">block</span><span class="p">)</span>
       <span class="n">context</span> <span class="o">=</span> <span class="no">Raptor</span><span class="o">::</span><span class="no">Context</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="n">description</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">block</span><span class="p">)</span>
       <span class="n">contexts</span> <span class="o">&lt;&lt;</span> <span class="n">context</span>
       <span class="n">context</span>
     <span class="k">end</span>
 
-    <span class="n">alias_method</span> <span class="ss">:describe</span><span class="p">,</span> <span class="ss">:context</span>
+    <span class="n">alias_method</span> <span class="ss">:describe</span><span class="p">,</span> <span class="ss">:context</span></pre></div>
+      </td>
+    </tr>
+    <tr id='section-7'>
+      <td class=docs>
+        <div class="octowrap">
+          <a class="octothorpe" href="#section-7">#</a>
+        </div>
+        <p> Examples can be defined inside contexts by using
+ <code>Raptor::Context#example</code>. It works exactly like the <code>#context</code> method
+ above, but creates an example instead of a context and increses the
+ example count in <code>Raptor.count</code>. If you prefer, you can use <code>#it</code> instead
+ of <code>#example</code>:</p>
 
-    <span class="k">def</span> <span class="nf">example</span><span class="p">(</span><span class="n">description</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">block</span><span class="p">)</span>
+<pre><code>context 'foo' do
+  example('bar') {}
+  it('baz') {}
+end
+</code></pre>
+
+      </td>
+      <td class=code>
+        <div class='highlight'><pre>    <span class="k">def</span> <span class="nf">example</span><span class="p">(</span><span class="n">description</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">block</span><span class="p">)</span>
       <span class="n">example</span> <span class="o">=</span> <span class="no">Raptor</span><span class="o">.</span><span class="n">example</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="n">description</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">block</span><span class="p">)</span>
       <span class="n">examples</span> <span class="o">&lt;&lt;</span> <span class="n">example</span>
       <span class="no">Raptor</span><span class="o">.</span><span class="n">counter</span><span class="o">[</span><span class="ss">:examples</span><span class="o">]</span> <span class="o">+=</span> <span class="mi">1</span>

@@ -79,18 +79,29 @@ module Raptor
 
     # Instead of directly running the test suite, Raptor has a setup phase
     # first. During this setup, every context gets looped through to register
-    # it and its examples. Using this information, formatters can give
-    # information about the suite that's going to run.
+    # it and its examples. This information can be used to let formatters give
+    # information about the suite that's going to run, for example.
     #
     # The blocks get `instance_eval`-ed to run them inside the context. This
-    # means that `this` is the parent context within the block. After that,
-    # every nested context gets set up too 
+    # means that `this` is the parent context within the block and every
+    # nested context or example inside that block is added to the parent 
+    # context.
+    #
+    # After running the block, the context's nested contexts get set up too.
 
     def setup
       result = instance_eval(&@block)
       contexts.each { |context| context.setup }
       result
     end
+
+    # After setting everything using `Raptor::Context#setup`, the context is
+    # ready to run. `Raptor::Context#run` starts by calling the current
+    # formatter's `#context_started` method, to let it know the context has
+    # started running. After that, `Raptor.depth` gets incremented. Again, this
+    # information can be used by formatters. The nested examples and contexts
+    # receive the `#run` call too and the depth is restored to its original
+    # value.
 
     def run
       Raptor.formatter.context_started(@description)
@@ -100,6 +111,17 @@ module Raptor
       Raptor.depth -= 1
     end
 
+    # To create a new context inside an existing context, the
+    # `Raptor::Context#context` method is used. It will simply create a new
+    # instance of `Raptor::Context` using the passed description and block and
+    # add it to the current context's `#contexts` array. You can also use
+    # `#describe` if you prefer. That's an alias for `#context`:
+    #
+    #    Context.new('foo') do
+    #      context('bar') { }
+    #      describe('baz') { }
+    #    end
+
     def context(description, &block)
       context = Raptor::Context.new(description, &block)
       contexts << context
@@ -107,6 +129,17 @@ module Raptor
     end
 
     alias_method :describe, :context
+
+    # Examples can be defined inside contexts by using
+    # `Raptor::Context#example`. It works exactly like the `#context` method
+    # above, but creates an example instead of a context and increses the
+    # example count in `Raptor.count`. If you prefer, you can use `#it` instead
+    # of `#example`:
+    #
+    #    context 'foo' do
+    #      example('bar') {}
+    #      it('baz') {}
+    #    end
 
     def example(description, &block)
       example = Raptor.example.new(description, &block)
