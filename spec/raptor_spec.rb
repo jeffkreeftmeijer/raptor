@@ -218,6 +218,45 @@ describe Raptor::Context do
       end
     end
 
+    it "runs before and after hooks" do
+      with_mocha do
+        Raptor.formatter.stubs(:context_started)
+        Raptor.formatter.stubs(:example_passed)
+        Raptor.counter.stubs(:[]=)
+
+        result = []
+
+        context = Unstable::Raptor::Context.new('foo')
+        context.hook(:before) { result << :before }
+        context.example(:example) { result << :example }
+        context.hook(:after) { result << :after }
+
+        context.run
+
+        result.should == [:before, :example, :after]
+      end
+    end
+
+    it "runs multiple before hooks" do
+      with_mocha do
+        Raptor.formatter.stubs(:context_started)
+        Raptor.formatter.stubs(:example_passed)
+        Raptor.counter.stubs(:[]=)
+
+
+        result = []
+
+        context = Unstable::Raptor::Context.new('foo')
+        context.hook(:before) { result << :before }
+        context.hook(:before) { result << :before }
+        context.example(:example) { result << :example }
+
+        context.run
+
+        result.should == [:before, :before, :example]
+      end
+    end
+
     it "increases Raptor.depth while running nested contexts" do
       with_mocha do
         Raptor.formatter.stubs(:context_started)
@@ -346,6 +385,17 @@ describe Raptor::Context do
         context = Unstable::Raptor::Context.new('foo')
         context.it('foo').class.should == Raptor::Example
       end
+    end
+
+  end
+
+  describe "#hook" do
+
+    it "adds a before hook to context.hooks" do
+      context = Unstable::Raptor::Context.new('foo') {}
+      context.hook(:before) { true }
+      context.hooks[:before].length.should == 1
+      context.hooks[:before].first.call.should == true
     end
 
   end

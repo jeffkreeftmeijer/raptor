@@ -72,6 +72,10 @@ module Raptor
       @examples ||= []
     end
 
+    def hooks
+      @hooks ||= {:before => [], :after => []}
+    end
+
     def initialize(description, &block)
       @description = description
       @block = block
@@ -106,7 +110,13 @@ module Raptor
     def run
       Raptor.formatter.context_started(@description)
       Raptor.depth += 1
-      examples.each { |example| example.run }
+
+      examples.each do |example|
+        hooks[:before].each { |hook| hook.call }
+        example.run
+        hooks[:after].each { |hook| hook.call }
+      end
+
       contexts.each { |context| context.run }
       Raptor.depth -= 1
     end
@@ -149,6 +159,10 @@ module Raptor
     end
 
     alias_method :it, :example
+
+    def hook(type, &block)
+      hooks[type] << block
+    end
 
   end
 
