@@ -18,6 +18,7 @@ module Raptor
     formatter.suite_started
     contexts.each { |context| context.run }
     formatter.suite_finished
+    exit(counter[:failed_examples] == 0 ? 0 : 1)
   end
 
   class Should

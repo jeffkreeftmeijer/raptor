@@ -60,6 +60,7 @@ describe Raptor do
       with_mocha do
         Unstable::Raptor.formatter.stubs(:suite_started)
         Unstable::Raptor.formatter.stubs(:suite_finished)
+        Unstable::Raptor.stubs(:exit)
 
         Unstable::Raptor.instance_variable_set(
           :@contexts,
@@ -79,6 +80,7 @@ describe Raptor do
       with_mocha do
         Unstable::Raptor.formatter.stubs(:suite_started)
         Unstable::Raptor.formatter.stubs(:suite_finished)
+        Unstable::Raptor.stubs(:exit)
 
         Unstable::Raptor.instance_variable_set(
           :@contexts,
@@ -96,7 +98,31 @@ describe Raptor do
         Unstable::Raptor.stubs(:contexts).returns([])
         Unstable::Raptor.formatter.expects(:suite_started)
         Unstable::Raptor.formatter.expects(:suite_finished)
+        Unstable::Raptor.stubs(:exit)
 
+        Unstable::Raptor.run
+      end
+    end
+
+    it "exits with 0 as the exit code when there are no failures" do
+      with_mocha do
+        Unstable::Raptor.stubs(:contexts).returns([])
+        Unstable::Raptor.formatter.stubs(:suite_started)
+        Unstable::Raptor.formatter.stubs(:suite_finished)
+
+        Unstable::Raptor.expects(:exit).with(0)
+        Unstable::Raptor.run
+      end
+    end
+
+    it "exits with 1 as the exit code when there are failures" do
+      with_mocha do
+        Unstable::Raptor.stubs(:contexts).returns([])
+        Unstable::Raptor.formatter.stubs(:suite_started)
+        Unstable::Raptor.formatter.stubs(:suite_finished)
+
+        Unstable::Raptor.stubs(:counter).returns({:failed_examples => 3})
+        Unstable::Raptor.expects(:exit).with(1)
         Unstable::Raptor.run
       end
     end
