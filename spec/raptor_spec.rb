@@ -269,7 +269,6 @@ describe Raptor::Context do
         Raptor.formatter.stubs(:example_passed)
         Raptor.counter.stubs(:[]=)
 
-
         result = []
 
         context = Unstable::Raptor::Context.new('foo')
@@ -280,6 +279,20 @@ describe Raptor::Context do
         context.run
 
         result.should == [:before, :before, :example]
+      end
+    end
+
+    it "runs hooks within the example instance" do
+      with_mocha do
+        Raptor.formatter.stubs(:context_started)
+        Raptor.formatter.stubs(:example_passed)
+
+        context = Unstable::Raptor::Context.new('foo')
+        context.hook(:before) { yeah! }
+        example = context.example('bar') { }
+
+        example.expects(:yeah!)
+        context.run
       end
     end
 

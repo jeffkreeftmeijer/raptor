@@ -113,9 +113,9 @@ module Raptor
       Raptor.depth += 1
 
       examples.each do |example|
-        hooks[:before].each { |hook| hook.call }
+        hooks[:before].each { |hook| example.instance_eval(&hook) }
         example.run
-        hooks[:after].each { |hook| hook.call }
+        hooks[:after].each { |hook| example.instance_eval(&hook) }
       end
 
       contexts.each { |context| context.run }
