@@ -27,5 +27,6 @@ module Unstable
 end
 
 Unstable::Raptor.clone_constants_from Raptor
+Unstable::Raptor.example = Unstable::Raptor::Example
 
 require 'raptor'

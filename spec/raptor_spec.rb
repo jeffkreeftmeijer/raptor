@@ -36,7 +36,7 @@ describe Raptor do
   describe ".example" do
 
     it "returns Raptor::Example by default" do
-      Unstable::Raptor.example.to_s.should == 'Raptor::Example'
+      Unstable::Raptor.example.to_s.should == 'Unstable::Raptor::Example'
     end
 
   end
