@@ -41,6 +41,14 @@ describe Raptor do
 
   end
 
+  describe ".context" do
+
+    it "returns Raptor::Context by default" do
+      Unstable::Raptor.context.to_s.should == 'Unstable::Raptor::Context'
+    end
+
+  end
+
   describe '.counter' do
 
     it "returns the current value" do

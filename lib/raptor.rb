@@ -2,7 +2,7 @@ module Raptor
 
   class << self
     attr_writer :depth
-    attr_accessor :formatter, :example, :counter
+    attr_accessor :formatter, :context, :example, :counter
   end
 
   def self.contexts
@@ -231,6 +231,7 @@ module Raptor
   end
 
   @formatter = Formatter::Documentation
+  @context = Context
   @example = Example
   @counter = Hash.new(0)
 
@@ -239,7 +240,7 @@ end
 module Kernel
 
   def context(description, &block)
-    context = Raptor::Context.new(description, &block)
+    context = Raptor.context.new(description, &block)
     Raptor.contexts << context
     context
   end
