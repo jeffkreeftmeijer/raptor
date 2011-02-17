@@ -269,6 +269,7 @@ describe Raptor::Context do
       with_mocha do
         Raptor.formatter.stubs(:context_started)
         Raptor.formatter.stubs(:example_passed)
+        Raptor.counter.stubs(:[]=)
 
         context = Unstable::Raptor::Context.new('foo')
         context.hook(:before) { yeah! }
