@@ -56,75 +56,58 @@ describe Raptor do
 
   describe ".run" do
 
+    hook :before do
+      mocha_setup
+      Unstable::Raptor.formatter.stubs(:suite_started)
+      Unstable::Raptor.formatter.stubs(:suite_finished)
+      Unstable::Raptor.stubs(:exit)
+      Unstable::Raptor.stubs(:contexts).returns([])
+    end
+
+    hook(:after) do
+      mocha_verify
+      mocha_teardown
+    end
+
     it "sets up the contexts" do
-      with_mocha do
-        Unstable::Raptor.formatter.stubs(:suite_started)
-        Unstable::Raptor.formatter.stubs(:suite_finished)
-        Unstable::Raptor.stubs(:exit)
+      Unstable::Raptor.instance_variable_set(
+        :@contexts,
+        [Unstable::Raptor::Context.new('foo') {}] * 3
+      )
 
-        Unstable::Raptor.instance_variable_set(
-          :@contexts,
-          [Unstable::Raptor::Context.new('foo') {}] * 3
-        )
-
-        Unstable::Raptor.contexts.each do |context|
-          context.stubs(:run)
-          context.expects(:setup)
-        end
-
-        Unstable::Raptor.run
+      Unstable::Raptor.contexts.each do |context|
+        context.stubs(:run)
+        context.expects(:setup)
       end
+
+      Unstable::Raptor.run
     end
 
     it "runs the contexts" do
-      with_mocha do
-        Unstable::Raptor.formatter.stubs(:suite_started)
-        Unstable::Raptor.formatter.stubs(:suite_finished)
-        Unstable::Raptor.stubs(:exit)
-
         Unstable::Raptor.instance_variable_set(
           :@contexts,
           [Unstable::Raptor::Context.new('foo') {}] * 3
         )
 
         Unstable::Raptor.contexts.each { |context| context.expects(:run) }
-
         Unstable::Raptor.run
-      end
     end
 
     it "calls Raptor.formatter.suite_started/suite_finished" do
-      with_mocha do
-        Unstable::Raptor.stubs(:contexts).returns([])
         Unstable::Raptor.formatter.expects(:suite_started)
         Unstable::Raptor.formatter.expects(:suite_finished)
-        Unstable::Raptor.stubs(:exit)
-
         Unstable::Raptor.run
-      end
     end
 
     it "exits with 0 as the exit code when there are no failures" do
-      with_mocha do
-        Unstable::Raptor.stubs(:contexts).returns([])
-        Unstable::Raptor.formatter.stubs(:suite_started)
-        Unstable::Raptor.formatter.stubs(:suite_finished)
-
         Unstable::Raptor.expects(:exit).with(0)
         Unstable::Raptor.run
-      end
     end
 
     it "exits with 1 as the exit code when there are failures" do
-      with_mocha do
-        Unstable::Raptor.stubs(:contexts).returns([])
-        Unstable::Raptor.formatter.stubs(:suite_started)
-        Unstable::Raptor.formatter.stubs(:suite_finished)
-
         Unstable::Raptor.stubs(:counter).returns({:failed_examples => 3})
         Unstable::Raptor.expects(:exit).with(1)
         Unstable::Raptor.run
-      end
     end
 
   end
