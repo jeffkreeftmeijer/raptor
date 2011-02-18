@@ -80,7 +80,7 @@ describe Raptor do
     it "sets up the contexts" do
       Unstable::Raptor.instance_variable_set(
         :@contexts,
-        [Unstable::Raptor::Context.new('foo') {}] * 3
+        [Unstable::Raptor.context.new('foo') {}] * 3
       )
 
       Unstable::Raptor.contexts.each do |context|
@@ -94,7 +94,7 @@ describe Raptor do
     it "runs the contexts" do
         Unstable::Raptor.instance_variable_set(
           :@contexts,
-          [Unstable::Raptor::Context.new('foo') {}] * 3
+          [Unstable::Raptor::context.new('foo') {}] * 3
         )
 
         Unstable::Raptor.contexts.each { |context| context.expects(:run) }
@@ -197,7 +197,7 @@ describe Raptor::Context do
     it "runs nested contexts" do
       with_mocha do
         Raptor.formatter.stubs(:context_started)
-        parent_context = Unstable::Raptor::Context.new('foo') {}
+        parent_context = Unstable::Raptor.context.new('foo') {}
         context = parent_context.context('bar') { }
         context.expects(:run)
         parent_context.run
@@ -210,7 +210,7 @@ describe Raptor::Context do
         Raptor.formatter.stubs(:context_started)
         Raptor.formatter.stubs(:example_passed)
         called = false
-        context = Unstable::Raptor::Context.new('foo') {}
+        context = Unstable::Raptor.context.new('foo') {}
         example = context.example('bar') { called = true }
         context.run
         called.should == true
@@ -225,7 +225,7 @@ describe Raptor::Context do
 
         original_depth, depth = Raptor.depth, 0
 
-        context = Unstable::Raptor::Context.new('foo') {}
+        context = Unstable::Raptor.context.new('foo') {}
         example = context.example('bar') { depth = Raptor.depth }
 
         context.run
@@ -243,7 +243,7 @@ describe Raptor::Context do
 
         result = []
 
-        context = Unstable::Raptor::Context.new('foo')
+        context = Unstable::Raptor.context.new('foo')
         context.hook(:before) { result << :before }
         context.example(:example) { result << :example }
         context.hook(:after) { result << :after }
@@ -262,7 +262,7 @@ describe Raptor::Context do
 
         result = []
 
-        context = Unstable::Raptor::Context.new('foo')
+        context = Unstable::Raptor.context.new('foo')
         context.hook(:before) { result << :before }
         context.hook(:before) { result << :before }
         context.example(:example) { result << :example }
@@ -279,7 +279,7 @@ describe Raptor::Context do
         Raptor.formatter.stubs(:example_passed)
         Raptor.counter.stubs(:[]=)
 
-        context = Unstable::Raptor::Context.new('foo')
+        context = Unstable::Raptor.context.new('foo')
         context.hook(:before) { yeah! }
         example = context.example('bar') { }
 
@@ -293,7 +293,7 @@ describe Raptor::Context do
         Raptor.formatter.stubs(:context_started)
         Raptor.formatter.stubs(:example_passed) 
 
-        parent_context = Unstable::Raptor::Context.new('foo') {}
+        parent_context = Unstable::Raptor.context.new('foo') {}
         context = parent_context.context('bar') { }
 
         Raptor.stubs(:depth).returns(1)
@@ -308,7 +308,7 @@ describe Raptor::Context do
       with_mocha do
         Raptor.formatter.expects(:context_started).with('foo')
 
-        Unstable::Raptor::Context.new('foo') {}.run
+        Unstable::Raptor.context.new('foo') {}.run
       end
     end
 
@@ -317,12 +317,12 @@ describe Raptor::Context do
   describe "#contexts" do
 
     it "is an array to store contexts" do
-      parent_context = Unstable::Raptor::Context.new('foo')
+      parent_context = Unstable::Raptor.context.new('foo')
       parent_context.contexts.class.should == Array
     end
 
     it "is writable" do
-      parent_context = Unstable::Raptor::Context.new('foo')
+      parent_context = Unstable::Raptor.context.new('foo')
       parent_context.contexts << :context
       parent_context.contexts.should == [:context]
     end
@@ -332,15 +332,15 @@ describe Raptor::Context do
   describe "#context" do
 
     it "returns an instance of Raptor::Context" do
-      parent_context = Unstable::Raptor::Context.new('foo')
+      parent_context = Unstable::Raptor.context.new('foo')
       context = parent_context.context('bar') { 'baz' }
-      context.class.should == Raptor::Context
+      context.class.should == Unstable::Raptor::Context
       context.instance_variable_get(:@description).should == 'bar'
       context.instance_variable_get(:@block).call.should == 'baz'
     end
 
     it "adds a context to parent_context#contexts" do
-      parent_context = Unstable::Raptor::Context.new('foo')
+      parent_context = Unstable::Raptor.context.new('foo')
       context = parent_context.context('foo')
       parent_context.contexts.pop.should == context
     end
@@ -350,8 +350,8 @@ describe Raptor::Context do
   describe "#describe" do
 
     it "is an alias for #context" do
-      parent_context = Unstable::Raptor::Context.new('foo')
-      parent_context.describe('foo').class.should == Raptor::Context
+      parent_context = Unstable::Raptor.context.new('foo')
+      parent_context.describe('foo').class.should == Unstable::Raptor::Context
     end
 
   end
@@ -359,12 +359,12 @@ describe Raptor::Context do
   describe "#examples" do
 
     it "is an array to store contexts" do
-      context = Unstable::Raptor::Context.new('foo')
+      context = Unstable::Raptor.context.new('foo')
       context.examples.class.should == Array
     end
 
     it "is writable" do
-      context = Unstable::Raptor::Context.new('foo')
+      context = Unstable::Raptor.context.new('foo')
       context.examples << :context
       context.examples.should == [:context]
     end
@@ -376,7 +376,7 @@ describe Raptor::Context do
     it "returns an instance of Raptor::Example" do
       with_mocha do
         Raptor.counter.stubs(:[]=)
-        context = Unstable::Raptor::Context.new('foo')
+        context = Unstable::Raptor.context.new('foo')
         example = context.example('foo') { 'bar' }
         example.class.should == Raptor::Example
         example.instance_variable_get(:@description).should == 'foo'
@@ -387,7 +387,7 @@ describe Raptor::Context do
     it "adds an example to context.examples" do
       with_mocha do
         Raptor.counter.stubs(:[]=)
-        context = Unstable::Raptor::Context.new('foo')
+        context = Unstable::Raptor.context.new('foo')
         example = context.example('foo')
         context.examples.pop.should == example
       end
@@ -400,7 +400,7 @@ describe Raptor::Context do
           Raptor.counter[:examples] + 1
         )
 
-        context = Unstable::Raptor::Context.new('foo')
+        context = Unstable::Raptor.context.new('foo')
 
         example = context.example('foo')
       end
@@ -413,7 +413,7 @@ describe Raptor::Context do
     it "is an alias for #example" do
       with_mocha do
         Raptor.counter.stubs(:[]=)
-        context = Unstable::Raptor::Context.new('foo')
+        context = Unstable::Raptor.context.new('foo')
         context.it('foo').class.should == Raptor::Example
       end
     end
@@ -423,7 +423,7 @@ describe Raptor::Context do
   describe "#hook" do
 
     it "adds a before hook to context.hooks" do
-      context = Unstable::Raptor::Context.new('foo') {}
+      context = Unstable::Raptor.context.new('foo') {}
       context.hook(:before) { true }
       context.hooks[:before].length.should == 1
       context.hooks[:before].first.call.should == true
@@ -585,7 +585,7 @@ describe Kernel do
 
   describe "#context" do
 
-    it "returns an instance of Raptor::Context" do
+    it "returns an instance of Raptor.context" do
       context = Unstable::Kernel.context('foo') { 'bar' }
 
       context.class.should == Raptor::Context

@@ -134,7 +134,7 @@ module Raptor
     #    end
 
     def context(description, &block)
-      context = Raptor::Context.new(description, &block)
+      context = self.class.new(description, &block)
       contexts << context
       context
     end
