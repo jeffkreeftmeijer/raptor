@@ -77,9 +77,10 @@ module Raptor
       @hooks ||= {:before => [], :after => []}
     end
 
-    def initialize(description, &block)
+    def initialize(description, parent = nil, &block)
       @description = description
       @block = block
+      @parent = parent
     end
 
     # Instead of directly running the test suite, Raptor has a setup phase
@@ -134,7 +135,7 @@ module Raptor
     #    end
 
     def context(description, &block)
-      context = self.class.new(description, &block)
+      context = self.class.new(description, self, &block)
       contexts << context
       context
     end

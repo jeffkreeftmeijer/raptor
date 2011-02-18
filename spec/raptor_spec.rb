@@ -166,6 +166,11 @@ describe Raptor::Context do
       context.instance_variable_get(:@block).call.should == 'baz'
     end
 
+    it "stores the parent" do
+      context = Unstable::Raptor::Context.new('foo', 'bar')
+      context.instance_variable_get(:@parent).should == 'bar'
+    end
+
   end
 
   describe "#setup" do
@@ -337,6 +342,7 @@ describe Raptor::Context do
       context.class.should == Unstable::Raptor::Context
       context.instance_variable_get(:@description).should == 'bar'
       context.instance_variable_get(:@block).call.should == 'baz'
+      context.instance_variable_get(:@parent).should == parent_context
     end
 
     it "adds a context to parent_context#contexts" do
